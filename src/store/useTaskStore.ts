@@ -76,6 +76,7 @@ interface TaskStoreState {
   toggleTask: (date: string, categoryId: string, count?: number, note?: string) => void;
   updateTaskCount: (date: string, categoryId: string, count: number) => void;
   incrementTaskCount: (date: string, categoryId: string, incrementBy?: number) => void;
+  decrementTaskCount: (date: string, categoryId: string, decrementBy?: number) => void;
   updateTaskNote: (date: string, categoryId: string, note: string) => void;
   
   addCategory: (category: Omit<Category, 'id' | 'archived' | 'createdAt'>) => void;
@@ -170,6 +171,35 @@ export const useTaskStore = create<TaskStoreState>((set, get) => {
           [categoryId]: {
             ...currentTask,
             done: true,
+            count: newCount,
+          },
+        },
+      };
+
+      const newDayEntries = {
+        ...dayEntries,
+        [date]: updatedEntry,
+      };
+
+      appStorage.setItem(STORAGE_KEY_DAY_ENTRIES, newDayEntries);
+      set({ dayEntries: newDayEntries });
+    },
+
+    decrementTaskCount: (date: string, categoryId: string, decrementBy = 1) => {
+      const { dayEntries } = get();
+      const currentEntry = dayEntries[date] || { date, tasks: {} };
+      const currentTask = currentEntry.tasks[categoryId] || { done: false, count: 0 };
+
+      const existingCount = currentTask.count || 0;
+      const newCount = Math.max(0, existingCount - decrementBy);
+
+      const updatedEntry: DayEntry = {
+        ...currentEntry,
+        tasks: {
+          ...currentEntry.tasks,
+          [categoryId]: {
+            ...currentTask,
+            done: newCount > 0,
             count: newCount,
           },
         },

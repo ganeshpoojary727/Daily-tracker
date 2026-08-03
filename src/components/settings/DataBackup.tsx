@@ -20,12 +20,9 @@ export const DataBackup: React.FC = () => {
         goals: useGoalStore.getState().goals,
         settings: useSettingsStore.getState().settings,
         practice: {
-          queueOrder: usePracticeStore.getState().queueOrder,
-          queuePointer: usePracticeStore.getState().queuePointer,
-          todayBatchStart: usePracticeStore.getState().todayBatchStart,
-          lastBatchDate: usePracticeStore.getState().lastBatchDate,
-          solves: usePracticeStore.getState().solves,
-          skipped: usePracticeStore.getState().skipped,
+          sheets: usePracticeStore.getState().sheets,
+          activeSheetId: usePracticeStore.getState().activeSheetId,
+          statesBySheet: usePracticeStore.getState().statesBySheet,
         },
       };
 

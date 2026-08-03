@@ -1,91 +1,156 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { usePracticeStore } from '../../store/usePracticeStore';
-import { useTaskStore } from '../../store/useTaskStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { buildProblemMap, getUniqueProblemsCount } from '../../lib/problemUtils';
+import { buildProblemMap, computeSheetProgress, getNextUnsolvedIndex } from '../../lib/problemUtils';
 import { CurrentProblemCard } from './CurrentProblemCard';
 import { DailyBatchPanel } from './DailyBatchPanel';
 import { PatternBrowser } from './PatternBrowser';
+import { SheetSwitcher } from './SheetSwitcher';
+import { AddSheetModal } from './AddSheetModal';
 import { getTodayStr } from '../../lib/dateUtils';
+import { CheckCircle2 } from 'lucide-react';
 
 export const PracticeQueueRunner: React.FC = () => {
-  const problemsData = usePracticeStore((state) => state.problemsData);
-  const queueOrder = usePracticeStore((state) => state.queueOrder);
-  const queuePointer = usePracticeStore((state) => state.queuePointer);
-  const solves = usePracticeStore((state) => state.solves);
-  
+  const sheets = usePracticeStore((state) => state.sheets);
+  const activeSheetId = usePracticeStore((state) => state.activeSheetId);
+  const statesBySheet = usePracticeStore((state) => state.statesBySheet);
+
+  const setActiveSheetId = usePracticeStore((state) => state.setActiveSheetId);
+  const addSheet = usePracticeStore((state) => state.addSheet);
+  const deleteSheet = usePracticeStore((state) => state.deleteSheet);
+  const toggleSolved = usePracticeStore((state) => state.toggleSolved);
   const markCurrentSolved = usePracticeStore((state) => state.markCurrentSolved);
   const skipCurrent = usePracticeStore((state) => state.skipCurrent);
   const jumpToKey = usePracticeStore((state) => state.jumpToKey);
   const shuffleRemaining = usePracticeStore((state) => state.shuffleRemaining);
   const checkBatchReset = usePracticeStore((state) => state.checkBatchReset);
 
-  const incrementTaskCount = useTaskStore((state) => state.incrementTaskCount);
   const dailyBatchSize = useSettingsStore((state) => state.settings.dailyBatchSize);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // Check if today is a new batch date
+  // Active sheet & state
+  const activeSheet = sheets[activeSheetId] || Object.values(sheets)[0];
+  const activeState = statesBySheet[activeSheet?.id] || {
+    queueOrder: [],
+    queuePointer: 0,
+    todayBatchStart: 0,
+    lastBatchDate: getTodayStr(),
+    solves: {},
+    skipped: [],
+  };
+
+  // Check batch reset on load/switch
   React.useEffect(() => {
     checkBatchReset();
-  }, [checkBatchReset]);
+  }, [checkBatchReset, activeSheetId]);
 
-  // Build problem map
-  const problemMap = useMemo(() => buildProblemMap(problemsData), [problemsData]);
+  // Map of problems in active sheet
+  const problemMap = useMemo(() => (activeSheet ? buildProblemMap(activeSheet) : new Map()), [activeSheet]);
 
-  // Current problem key & data
-  const currentKey = queuePointer < queueOrder.length ? queueOrder[queuePointer] : null;
+  // Current problem key & data (automatically skipping already-solved problems)
+  const currentPointer = getNextUnsolvedIndex(activeState.queueOrder, activeState.queuePointer, activeState.solves);
+  const currentKey = currentPointer < activeState.queueOrder.length ? activeState.queueOrder[currentPointer] : null;
   const currentProblem = currentKey ? problemMap.get(currentKey) || null : null;
 
-  // Stats calculation
-  const totalUniqueSolved = getUniqueProblemsCount(solves);
-  const totalUniqueProblems = problemsData.meta.totalUniqueProblems || 389;
+  // Active sheet progress
+  const activeSheetProgress = computeSheetProgress(activeSheet, activeState.solves);
 
-  // Count solves recorded today
-  const todayStr = getTodayStr();
-  const todaySolvesCount = Object.values(solves).filter((s) => s.solvedAt === todayStr).length;
+  // Combined stats across ALL sheets
+  const combinedStats = useMemo(() => {
+    let totalSolvedAll = 0;
+    let totalProblemsAll = 0;
+    const sheetBreakdowns: { title: string; solved: number; total: number }[] = [];
 
-  const handleMarkSolved = () => {
-    const solvedKey = markCurrentSolved();
-    if (solvedKey) {
-      // Auto-increment today's LeetCode category count in useTaskStore
-      incrementTaskCount(todayStr, 'leetcode', 1);
+    for (const sheet of Object.values(sheets)) {
+      const st = statesBySheet[sheet.id];
+      const prog = computeSheetProgress(sheet, st?.solves || {});
+      totalSolvedAll += prog.solved;
+      totalProblemsAll += prog.total;
+      sheetBreakdowns.push({
+        title: sheet.meta.title,
+        solved: prog.solved,
+        total: prog.total,
+      });
     }
-  };
+
+    return { totalSolvedAll, totalProblemsAll, sheetBreakdowns };
+  }, [sheets, statesBySheet]);
+
+  // Solves count recorded today on active sheet
+  const todayStr = getTodayStr();
+  const todaySolvesCount = Object.values(activeState.solves).filter((s) => s.solvedAt === todayStr).length;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="font-display text-xl font-bold tracking-tight text-text-primary-dark">
-          DSA Pattern Practice Queue
-        </h2>
-        <p className="text-xs font-mono text-text-muted-dark">
-          Self-loading problem-by-problem runner backed by 15-category pattern sheet.
-        </p>
+      {/* Page Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="font-display text-xl font-bold tracking-tight text-text-primary-dark">
+            Practice Queue
+          </h2>
+          <p className="text-xs font-mono text-text-muted-dark">
+            Multi-sheet problem runner with independent queues and progress tracking.
+          </p>
+        </div>
+
+        {/* Combined Stats Badge Card */}
+        <div className="flex items-center gap-3 rounded-xl border border-surface-border-dark bg-surface-dark px-4 py-2 text-xs font-mono">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div>
+            <div className="font-bold text-text-primary-dark">
+              {combinedStats.totalSolvedAll} / {combinedStats.totalProblemsAll} Solved Across All Sheets
+            </div>
+            <div className="text-[11px] text-text-muted-dark truncate max-w-xs">
+              {combinedStats.sheetBreakdowns.map((b) => `${b.title}: ${b.solved}/${b.total}`).join(' · ')}
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Sheet Switcher Tabs */}
+      <SheetSwitcher
+        sheets={sheets}
+        activeSheetId={activeSheetId}
+        statesBySheet={statesBySheet}
+        onSelectSheet={setActiveSheetId}
+        onOpenAddModal={() => setIsAddModalOpen(true)}
+        onDeleteSheet={deleteSheet}
+      />
 
       {/* Hero Current Problem Card */}
       <CurrentProblemCard
         currentProblem={currentProblem}
-        onMarkSolved={handleMarkSolved}
+        onMarkSolved={markCurrentSolved}
         onSkip={skipCurrent}
         onShuffle={shuffleRemaining}
       />
 
-      {/* Today's Batch Progress Bar Panel */}
+      {/* Today's Batch & Sheet Progress Panel */}
       <DailyBatchPanel
         todaySolvesCount={todaySolvesCount}
         dailyBatchSize={dailyBatchSize}
-        totalUniqueSolved={totalUniqueSolved}
-        totalUniqueProblems={totalUniqueProblems}
+        totalUniqueSolved={activeSheetProgress.solved}
+        totalUniqueProblems={activeSheetProgress.total}
       />
 
       {/* Collapsible Pattern Browser Tree */}
-      <PatternBrowser
-        categories={problemsData.categories}
-        solves={solves}
-        currentKey={currentKey}
-        onSelectKey={jumpToKey}
+      {activeSheet && (
+        <PatternBrowser
+          sheet={activeSheet}
+          solves={activeState.solves}
+          currentKey={currentKey}
+          onSelectKey={jumpToKey}
+          onToggleSolved={(patternId, problemId) => toggleSolved(activeSheetId, patternId, problemId)}
+        />
+      )}
+
+      {/* Add Sheet Modal */}
+      <AddSheetModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddSheet={(sheet) => addSheet(sheet)}
       />
     </div>
   );
 };
+

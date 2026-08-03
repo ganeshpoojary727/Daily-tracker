@@ -16,7 +16,7 @@ export interface DayTaskEntry {
 }
 
 export interface DayEntry {
-  date: string; // "YYYY-MM-DD"
+  date: string; // YYYY-MM-DD
   tasks: Record<string, DayTaskEntry>;
 }
 
@@ -46,55 +46,74 @@ export interface Settings {
   };
 }
 
-export interface ProblemSeed {
-  id: string; // e.g. "p1-11"
-  number: number; // LeetCode problem number, e.g. 11
+export interface SheetProblem {
+  id: string; // unique within the sheet
+  number?: number; // optional — LeetCode problem number, e.g. 11
   title: string;
-  slug: string;
-  url: string;
+  url?: string; // optional — hide "Open ↗" if absent
+  notes?: string; // optional short hint/answer-context
 }
 
-export interface PatternSeed {
-  id: string; // e.g. "p1"
-  number: number;
-  name: string;
-  hasVideo: boolean;
-  problems: ProblemSeed[];
+export interface SheetPattern {
+  id: string;
+  number?: number;
+  name: string; // e.g. "Converging" or "Profit & Loss"
+  hasVideo?: boolean;
+  problems: SheetProblem[];
 }
 
-export interface CategorySeed {
-  id: string; // e.g. "two-pointer"
-  roman: string; // "I"
-  name: string;
-  patterns: PatternSeed[];
+export interface SheetCategory {
+  id: string;
+  roman?: string;
+  name: string; // e.g. "Two Pointer Patterns" or "DBMS"
+  patterns: SheetPattern[];
 }
 
-export interface ProblemsFile {
+export interface PracticeSheet {
+  id: string; // slug; generated from meta.title on import if not provided, must be unique across loaded sheets
   meta: {
     title: string;
-    author: string;
-    totalCategories: number;
-    totalPatterns: number;
-    totalProblemEntries: number;
-    totalUniqueProblems: number;
+    author?: string;
+    source?: string;
+    note?: string;
+    totalCategories?: number;
+    totalPatterns?: number;
+    totalProblemEntries?: number;
+    totalUniqueProblems?: number;
     [key: string]: unknown;
   };
-  categories: CategorySeed[];
+  categories: SheetCategory[];
+  linkedCategoryId: string; // daily task category ID, e.g. "leetcode" or "aptitude"
+  isBuiltIn: boolean; // true for default DSA sheet; only non-built-in can be deleted
 }
 
+// Backward compatibility type aliases
+export type ProblemSeed = SheetProblem;
+export type PatternSeed = SheetPattern;
+export type CategorySeed = SheetCategory;
+export type ProblemsFile = PracticeSheet;
+
 export interface ProblemSolve {
-  patternId: string; // e.g. "p1"
-  problemNumber: number; // e.g. 11
+  patternId: string;
+  problemId: string; // problem.id or problem.number as string
+  problemNumber?: number; // optional numeric problem number if present
   solvedAt: string; // ISO date "YYYY-MM-DD"
 }
 
 export interface PracticeState {
-  queueOrder: string[]; // ordered "patternId:problemNumber" keys
-  queuePointer: number; // current problem index
-  todayBatchStart: number; // batch start index for today
+  queueOrder: string[]; // ordered "patternId:problemId" keys
+  queuePointer: number;
+  todayBatchStart: number;
   lastBatchDate: string; // "YYYY-MM-DD"
-  solves: Record<string, ProblemSolve>; // key: "patternId:problemNumber"
-  skipped: string[]; // skipped keys sent to back of queue
+  solves: Record<string, ProblemSolve>; // key: "patternId:problemId"
+  skipped: string[];
+}
+
+export interface MultiSheetState {
+  sheets: Record<string, PracticeSheet>; // keyed by sheet id
+  activeSheetId: string; // currently active sheet ID
+  statesBySheet: Record<string, PracticeState>; // independent progress per sheet
 }
 
 export type ViewTab = 'checklist' | 'calendar' | 'goals' | 'practice' | 'dashboard' | 'settings';
+
