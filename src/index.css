@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-main: #0F1419;
+    --surface-main: #161B22;
+    --text-main: #E6EDF3;
+    --text-muted: #8B949E;
+    --border-main: #30363D;
+  }
+
+  .light {
+    --bg-main: #F6F7F9;
+    --surface-main: #FFFFFF;
+    --text-main: #1A1F26;
+    --text-muted: #6B7280;
+    --border-main: #E5E7EB;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #30363D;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E8590C;
+}
