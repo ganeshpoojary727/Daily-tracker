@@ -1,52 +1,37 @@
-# Personal Daily Progress Tracker
+# Daily Tracker — Accountability System
 
-A developer-focused, single-user daily accountability dashboard — built as a **fully static web application** with zero custom backend dependencies. Runs entirely in the browser using `localStorage`, with optional GitHub Gist sync for cross-device state management.
+A static, local-first daily progress tracker with a GitHub-style streak calendar, weekly/monthly goals, and a multi-sheet DSA pattern practice queue. No backend — all data lives in your browser via localStorage.
 
-![Build & Deploy](https://github.com/your-username/your-repo-name/actions/workflows/deploy.yml/badge.svg)
+**Live app:** https://ganeshpoojary727.github.io/Daily-tracker/
+
+---
+
+## Run locally
+
+```bash
+npm install
+npm run dev
+```
+
+---
+
+## Deploy
+
+Pushes to `main` auto-deploy via the GitHub Actions workflow in `.github/workflows/deploy.yml`. Enable it once in the repo: **Settings → Pages → Source → GitHub Actions.**
+
+---
+
+## Data & privacy
+
+All data is stored in your browser's localStorage — nothing leaves your device unless you explicitly enable the optional GitHub Gist sync in Settings. Use Settings → Export to back up your data as a JSON file.
 
 ---
 
 ## Key Features
 
-- **LeetCode Contribution Heatmap**: Full-year 365-day streak calendar with signature **split-segment cells**, dividing each day square into up to 6 micro-segments (one per active category) to show *which* categories were completed.
+- **LeetCode Contribution Heatmap**: Full-year 365-day streak calendar with split-segment cells dividing each day square into micro-segments to show which categories were completed.
 - **Daily Checklist & Backfilling**: Log completed daily targets, enter notes/counts, and select any past or future date via the DatePicker to backfill missed days or plan ahead.
-- **DSA Pattern Practice Queue Runner**: Interactive queue runner backed by `src/data/problems.json` (15 categories, 94 patterns, 412 problem entries / 389 unique LeetCode problems). Includes a **"Mark solved & load next"** flow that automatically increments your daily LeetCode completion count, a daily suggested batch indicator (default 5), and a collapsible Pattern Browser with video badges.
-- **Accountability Goals & Live Timers**: Create weekly/monthly/custom goals linked to categories with real-time updating countdown timers (`days:hours:minutes:seconds`) displayed in a persistent sidebar widget.
-- **Analytics & Dashboard**: View summary metrics (current streak, longest streak, trailing 30/90-day completion rates) and interactive Recharts category distribution & trend line charts.
+- **Multi-Sheet Practice Queue**: Problem-by-problem runner supporting multiple practice sheets (built-in DSA patterns, TCS technical questions, aptitude sheets). Toggling solved status updates streaks, automatically skips solved problems, and tracks independent sheet progress.
+- **Accountability Goals & Live Timers**: Create weekly/monthly/custom goals linked to categories with real-time updating countdown timers displayed in a persistent widget.
+- **Analytics & Dashboard**: View summary metrics (current streak, longest streak, trailing completion rates) and interactive Recharts category distribution & trend line charts.
 - **Data Export/Import & Sync**: Download single-file JSON backups, restore anytime, or connect a GitHub Personal Access Token (`gist` scope) for browser-direct private Gist sync.
-
----
-
-## Tech Stack
-
-- **Framework**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand (`persist`)
-- **Icons**: `lucide-react`
-- **Dates**: `date-fns`
-- **Animations**: `framer-motion`
-- **Charts**: `recharts`
-- **Deployment**: GitHub Actions → GitHub Pages (`actions/deploy-pages`)
-
----
-
-## Local Development
-
-```bash
-# Install dependencies
-npm install
-
-# Start Vite dev server
-npm run dev
-
-# Build production bundle
-npm run build
-```
-
----
-
-## Deploying to GitHub Pages
-
-1. Push your repository to GitHub.
-2. Ensure GitHub Pages is enabled in **Settings → Pages → Source: GitHub Actions**.
-3. The `.github/workflows/deploy.yml` workflow will automatically build and publish the static bundle on every push to `main`.

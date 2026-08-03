@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Sun, Moon, Monitor, Menu } from 'lucide-react';
+import { Flame, Sun, Moon, Monitor, Menu, Github } from 'lucide-react';
 import { useStreak } from '../../hooks/useStreak';
 import { useSettingsStore } from '../../store/useSettingsStore';
 
@@ -52,6 +52,17 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
           <Flame className="w-4 h-4 fill-streak animate-pulse" />
           <span>{currentStreak} DAY STREAK</span>
         </div>
+
+        {/* View on GitHub Link */}
+        <a
+          href="https://github.com/ganeshpoojary727/Daily-tracker"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="View source on GitHub"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-surface-border-dark bg-surface-dark text-text-muted-dark hover:text-text-primary-dark hover:bg-surface-hover-dark transition-colors"
+        >
+          <Github className="w-4 h-4" />
+        </a>
 
         {/* Theme Toggle Button */}
         <button
