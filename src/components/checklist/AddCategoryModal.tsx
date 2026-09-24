@@ -12,12 +12,12 @@ interface AddCategoryModalProps {
 const PRESET_COLORS = [
   '#4C9AFF', // LeetCode blue
   '#9F7AEA', // Java purple
+  '#F6E05E', // JS / React yellow
   '#F6AD55', // Aptitude orange
   '#48BB78', // Personal Project green
-  '#F56565', // Major Project red
   '#38B2AC', // Exercise teal
   '#ED64A6', // Pink
-  '#ECC94B', // Yellow
+  '#F56565', // Coral red
   '#667EEA', // Indigo
   '#E8590C', // Flame streak
 ];
@@ -25,9 +25,10 @@ const PRESET_COLORS = [
 const PRESET_ICONS = [
   'Code2',
   'BookOpen',
+  'Atom',
+  'Braces',
   'Brain',
   'FolderGit2',
-  'Layers',
   'Activity',
   'Target',
   'Sparkles',
@@ -36,7 +37,6 @@ const PRESET_ICONS = [
   'Dumbbell',
   'Cpu',
   'Globe',
-  'PenTool',
 ];
 
 export const AddCategoryModal: React.FC<AddCategoryModalProps> = ({

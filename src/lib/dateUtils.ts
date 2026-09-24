@@ -4,6 +4,7 @@ import {
   eachDayOfInterval,
   startOfYear,
   endOfYear,
+  endOfMonth,
   startOfWeek,
   endOfWeek,
   differenceInSeconds,
@@ -40,11 +41,26 @@ export function isFuture(dateStr: string): boolean {
   }
 }
 
+export interface CalendarDay {
+  dateStr: string;
+  date: Date;
+  isCurrentYear: boolean;
+  month: string;
+  monthIndex: number;
+  dayOfWeek: number;
+}
+
+export interface CalendarMonthBlock {
+  monthName: string;
+  monthIndex: number;
+  weeks: (CalendarDay | null)[][];
+}
+
 /**
  * Returns full array of days for a calendar heatmap grid.
  * Grid includes lead-in days to start on weekStartsOn ('sunday' | 'monday').
  */
-export function getCalendarGridDays(year: number = new Date().getFullYear(), weekStartsOn: 'sunday' | 'monday' = 'monday') {
+export function getCalendarGridDays(year: number = new Date().getFullYear(), weekStartsOn: 'sunday' | 'monday' = 'monday'): CalendarDay[] {
   const startDay = weekStartsOn === 'monday' ? 1 : 0;
   const yearStart = startOfYear(new Date(year, 0, 1));
   const yearEnd = endOfYear(new Date(year, 11, 31));
@@ -62,6 +78,61 @@ export function getCalendarGridDays(year: number = new Date().getFullYear(), wee
     monthIndex: d.getMonth(),
     dayOfWeek: d.getDay(),
   }));
+}
+
+/**
+ * Returns 12 distinct month blocks (Jan - Dec) formatted like LeetCode's submission calendar.
+ * Each month block contains its own week columns with null spacers for leading/trailing weekdays.
+ */
+export function getCalendarMonthBlocks(
+  year: number = new Date().getFullYear(),
+  weekStartsOn: 'sunday' | 'monday' = 'monday'
+): CalendarMonthBlock[] {
+  const blocks: CalendarMonthBlock[] = [];
+
+  for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+    const monthStart = new Date(year, monthIndex, 1);
+    const monthEnd = endOfMonth(monthStart);
+    const daysInMonth = eachDayOfInterval({ start: monthStart, end: monthEnd });
+
+    // Calculate weekday offset (0..6) for the 1st of the month
+    const firstDayOfWeek = monthStart.getDay(); // 0 (Sun) .. 6 (Sat)
+    const leadingNulls =
+      weekStartsOn === 'monday' ? (firstDayOfWeek + 6) % 7 : firstDayOfWeek;
+
+    const slots: (CalendarDay | null)[] = [];
+    for (let i = 0; i < leadingNulls; i++) {
+      slots.push(null);
+    }
+
+    for (const d of daysInMonth) {
+      slots.push({
+        dateStr: format(d, 'yyyy-MM-dd'),
+        date: d,
+        isCurrentYear: true,
+        month: format(d, 'MMM'),
+        monthIndex,
+        dayOfWeek: d.getDay(),
+      });
+    }
+
+    while (slots.length % 7 !== 0) {
+      slots.push(null);
+    }
+
+    const weeks: (CalendarDay | null)[][] = [];
+    for (let i = 0; i < slots.length; i += 7) {
+      weeks.push(slots.slice(i, i + 7));
+    }
+
+    blocks.push({
+      monthName: format(monthStart, 'MMM'),
+      monthIndex,
+      weeks,
+    });
+  }
+
+  return blocks;
 }
 
 export interface CountdownResult {

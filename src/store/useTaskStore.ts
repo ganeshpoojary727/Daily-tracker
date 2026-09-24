@@ -24,6 +24,16 @@ const DEFAULT_CATEGORIES: Category[] = [
     createdAt: new Date().toISOString(),
   },
   {
+    id: 'js-react',
+    name: 'JavaScript / React Concept',
+    color: '#F6E05E',
+    icon: 'Atom',
+    dailyTarget: 1,
+    unit: 'concept',
+    archived: false,
+    createdAt: new Date().toISOString(),
+  },
+  {
     id: 'aptitude',
     name: 'Aptitude',
     color: '#F6AD55',
@@ -44,16 +54,6 @@ const DEFAULT_CATEGORIES: Category[] = [
     createdAt: new Date().toISOString(),
   },
   {
-    id: 'major-project',
-    name: 'Major Project',
-    color: '#F56565',
-    icon: 'Layers',
-    dailyTarget: 1,
-    unit: 'session',
-    archived: false,
-    createdAt: new Date().toISOString(),
-  },
-  {
     id: 'exercise',
     name: 'Exercise',
     color: '#38B2AC',
@@ -67,6 +67,72 @@ const DEFAULT_CATEGORIES: Category[] = [
 
 const STORAGE_KEY_CATEGORIES = 'dt_categories_v1';
 const STORAGE_KEY_DAY_ENTRIES = 'dt_day_entries_v1';
+
+function normalizeCategories(rawCategories: Category[]): Category[] {
+  const jsReactCategory: Category = {
+    id: 'js-react',
+    name: 'JavaScript / React Concept',
+    color: '#F6E05E',
+    icon: 'Atom',
+    dailyTarget: 1,
+    unit: 'concept',
+    archived: false,
+    createdAt: new Date().toISOString(),
+  };
+
+  const hasJsReact = rawCategories.some(
+    (c) => c.id === 'js-react' || c.name.toLowerCase().includes('javascript') || c.name.toLowerCase().includes('react')
+  );
+
+  let replaced = false;
+  const filtered = rawCategories
+    .map((cat) => {
+      if (cat.id === 'major-project' || cat.name.toLowerCase() === 'major project') {
+        if (!hasJsReact && !replaced) {
+          replaced = true;
+          return { ...jsReactCategory, createdAt: cat.createdAt || jsReactCategory.createdAt };
+        }
+        return null;
+      }
+      return cat;
+    })
+    .filter((cat): cat is Category => cat !== null);
+
+  if (!hasJsReact && !replaced) {
+    // Insert right after Java Concept if present, otherwise append
+    const javaIdx = filtered.findIndex((c) => c.id === 'java');
+    if (javaIdx !== -1) {
+      filtered.splice(javaIdx + 1, 0, jsReactCategory);
+    } else {
+      filtered.push(jsReactCategory);
+    }
+  }
+
+  return filtered;
+}
+
+function migrateDayEntries(entries: Record<string, DayEntry>): Record<string, DayEntry> {
+  let modified = false;
+  const nextEntries: Record<string, DayEntry> = {};
+
+  for (const [date, entry] of Object.entries(entries)) {
+    if (entry?.tasks && 'major-project' in entry.tasks) {
+      modified = true;
+      const { 'major-project': majorTask, ...restTasks } = entry.tasks;
+      nextEntries[date] = {
+        ...entry,
+        tasks: {
+          ...restTasks,
+          'js-react': restTasks['js-react'] || majorTask,
+        },
+      };
+    } else {
+      nextEntries[date] = entry;
+    }
+  }
+
+  return modified ? nextEntries : entries;
+}
 
 interface TaskStoreState {
   categories: Category[];
@@ -90,9 +156,18 @@ interface TaskStoreState {
 }
 
 export const useTaskStore = create<TaskStoreState>((set, get) => {
-  // Initial storage retrieval with default fallback
-  const initialCategories = appStorage.getItem<Category[]>(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
-  const initialDayEntries = appStorage.getItem<Record<string, DayEntry>>(STORAGE_KEY_DAY_ENTRIES, {});
+  // Initial storage retrieval with default fallback and migration
+  const storedCategories = appStorage.getItem<Category[]>(STORAGE_KEY_CATEGORIES, DEFAULT_CATEGORIES);
+  const initialCategories = normalizeCategories(storedCategories);
+  if (JSON.stringify(storedCategories) !== JSON.stringify(initialCategories)) {
+    appStorage.setItem(STORAGE_KEY_CATEGORIES, initialCategories);
+  }
+
+  const storedDayEntries = appStorage.getItem<Record<string, DayEntry>>(STORAGE_KEY_DAY_ENTRIES, {});
+  const initialDayEntries = migrateDayEntries(storedDayEntries);
+  if (initialDayEntries !== storedDayEntries) {
+    appStorage.setItem(STORAGE_KEY_DAY_ENTRIES, initialDayEntries);
+  }
 
   return {
     categories: initialCategories,
@@ -281,13 +356,15 @@ export const useTaskStore = create<TaskStoreState>((set, get) => {
     },
 
     setDayEntries: (newDayEntries) => {
-      appStorage.setItem(STORAGE_KEY_DAY_ENTRIES, newDayEntries);
-      set({ dayEntries: newDayEntries });
+      const migrated = migrateDayEntries(newDayEntries);
+      appStorage.setItem(STORAGE_KEY_DAY_ENTRIES, migrated);
+      set({ dayEntries: migrated });
     },
 
     setCategories: (newCategories) => {
-      appStorage.setItem(STORAGE_KEY_CATEGORIES, newCategories);
-      set({ categories: newCategories });
+      const normalized = normalizeCategories(newCategories);
+      appStorage.setItem(STORAGE_KEY_CATEGORIES, normalized);
+      set({ categories: normalized });
     },
   };
 });
