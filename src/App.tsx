@@ -8,10 +8,17 @@ import { PracticeQueueRunner } from './components/practice/PracticeQueueRunner';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import { useSettingsStore } from './store/useSettingsStore';
+import { initGithubSyncEngine } from './lib/githubSyncEngine';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<ViewTab>('checklist');
   const [selectedDateForChecklist, setSelectedDateForChecklist] = useState<string | null>(null);
+
+  // Initialize background cloud sync engine
+  useEffect(() => {
+    const cleanup = initGithubSyncEngine();
+    return cleanup;
+  }, []);
 
   const theme = useSettingsStore((state) => state.settings.theme);
 
