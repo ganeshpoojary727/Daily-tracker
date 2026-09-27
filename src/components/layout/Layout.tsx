@@ -15,7 +15,10 @@ export const Layout: React.FC<LayoutProps> = ({ activeTab, onSelectTab, children
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-bg-dark text-text-primary-dark">
       {/* Header */}
-      <Header onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)} />
+      <Header
+        onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
+        onOpenSettings={() => onSelectTab('settings')}
+      />
 
       {/* Main Content Body */}
       <div className="flex flex-1 overflow-hidden">

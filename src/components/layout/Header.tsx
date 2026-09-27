@@ -2,12 +2,14 @@ import React from 'react';
 import { Flame, Sun, Moon, Monitor, Menu, Github } from 'lucide-react';
 import { useStreak } from '../../hooks/useStreak';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { CloudSyncPill } from './CloudSyncPill';
 
 interface HeaderProps {
   onToggleMobileSidebar: () => void;
+  onOpenSettings?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
+export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar, onOpenSettings }) => {
   const { currentStreak } = useStreak();
   const { theme } = useSettingsStore((state) => state.settings);
   const setTheme = useSettingsStore((state) => state.setTheme);
@@ -46,7 +48,10 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar }) => {
       </div>
 
       {/* Streak Badge & Theme Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Cloud Sync Status Indicator */}
+        <CloudSyncPill onOpenSettings={onOpenSettings} />
+
         {/* Streak Flame Pill */}
         <div className="flex items-center gap-1.5 rounded-full border border-streak/30 bg-streak/10 px-3 py-1 font-mono text-xs font-semibold text-streak shadow-sm">
           <Flame className="w-4 h-4 fill-streak animate-pulse" />
