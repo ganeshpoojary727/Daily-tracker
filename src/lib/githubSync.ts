@@ -9,9 +9,9 @@ export interface GistSyncData {
 
 export async function pushToGist(token: string, gistId: string | undefined, data: GistSyncData): Promise<string> {
   const content = JSON.stringify(data, null, 2);
-  const body = {
-    description: 'Personal Daily Progress Tracker Backup',
-    public: false,
+  const cleanToken = token.trim();
+  const body: Record<string, any> = {
+    description: 'Personal Daily Progress Tracker Cloud Backup',
     files: {
       'daily-tracker-data.json': {
         content,
@@ -19,14 +19,19 @@ export async function pushToGist(token: string, gistId: string | undefined, data
     },
   };
 
+  // The 'public' property is only valid during creation (POST); sending it in PATCH returns 422
+  if (!gistId) {
+    body.public = false;
+  }
+
   const url = gistId ? `https://api.github.com/gists/${gistId}` : 'https://api.github.com/gists';
   const method = gistId ? 'PATCH' : 'POST';
 
   const res = await fetch(url, {
     method,
     headers: {
-      Authorization: `token ${token}`,
-      Accept: 'application/vnd.github.v3+json',
+      Authorization: `Bearer ${cleanToken}`,
+      Accept: 'application/vnd.github+json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
@@ -42,10 +47,11 @@ export async function pushToGist(token: string, gistId: string | undefined, data
 }
 
 export async function pullFromGist(token: string, gistId: string): Promise<GistSyncData> {
+  const cleanToken = token.trim();
   const res = await fetch(`https://api.github.com/gists/${gistId}`, {
     headers: {
-      Authorization: `token ${token}`,
-      Accept: 'application/vnd.github.v3+json',
+      Authorization: `Bearer ${cleanToken}`,
+      Accept: 'application/vnd.github+json',
     },
   });
 
@@ -55,11 +61,26 @@ export async function pullFromGist(token: string, gistId: string): Promise<GistS
 
   const json = await res.json();
   const file = json.files?.['daily-tracker-data.json'];
-  if (!file || !file.content) {
+  if (!file) {
     throw new Error('Gist does not contain daily-tracker-data.json file');
   }
 
-  return JSON.parse(file.content) as GistSyncData;
+  if (file.content) {
+    return JSON.parse(file.content) as GistSyncData;
+  }
+
+  if (file.raw_url) {
+    const rawRes = await fetch(file.raw_url, {
+      headers: {
+        Authorization: `Bearer ${cleanToken}`,
+      },
+    });
+    if (rawRes.ok) {
+      return (await rawRes.json()) as GistSyncData;
+    }
+  }
+
+  throw new Error('Gist file content is empty');
 }
 
 export async function validateGithubToken(token: string): Promise<{ username: string; scopes: string[] }> {
