@@ -28,6 +28,7 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
     [categories[0]?.patterns[0]?.id || '']: true,
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'unsolved' | 'solved'>('all');
 
   const toggleCategory = (catId: string) => {
     setExpandedCategories((prev) => ({ ...prev, [catId]: !prev[catId] }));
@@ -40,12 +41,20 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
   // Compute total categories, patterns, and problems for header subtitle
   let totalPatternsCount = 0;
   let totalProblemsCount = 0;
+  let totalSolvedCount = 0;
+
   for (const cat of categories) {
     totalPatternsCount += cat.patterns.length;
     for (const pat of cat.patterns) {
       totalProblemsCount += pat.problems.length;
+      for (const prob of pat.problems) {
+        const key = getProblemKey(pat.id, prob);
+        if (solves[key]) totalSolvedCount++;
+      }
     }
   }
+
+  const totalUnsolvedCount = totalProblemsCount - totalSolvedCount;
 
   return (
     <div className="rounded-xl border border-surface-border-dark bg-surface-dark p-5 shadow-sm space-y-4">
@@ -56,20 +65,60 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
             {sheet.meta.title || 'Pattern Sheet Browser'}
           </h3>
           <p className="text-xs font-mono text-text-muted-dark">
-            {categories.length} Categories • {totalPatternsCount} Patterns • {totalProblemsCount} Problems
+            {categories.length} Categories • {totalPatternsCount} Patterns • {totalProblemsCount} Problems ({totalSolvedCount} Finished)
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-muted-dark" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search problem, pattern..."
-            className="w-full rounded-lg border border-surface-border-dark bg-surface-hover-dark pl-9 pr-3 py-1.5 font-sans text-xs text-text-primary-dark focus:border-streak focus:outline-none"
-          />
+        {/* Controls: Status Filter Pills + Search Bar */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Status Filter Tabs */}
+          <div className="flex items-center rounded-lg border border-surface-border-dark bg-surface-hover-dark/60 p-0.5 font-mono text-[11px]">
+            <button
+              type="button"
+              onClick={() => setStatusFilter('all')}
+              className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
+                statusFilter === 'all'
+                  ? 'bg-streak text-white shadow-sm'
+                  : 'text-text-muted-dark hover:text-text-primary-dark'
+              }`}
+            >
+              All ({totalProblemsCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('unsolved')}
+              className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
+                statusFilter === 'unsolved'
+                  ? 'bg-streak text-white shadow-sm'
+                  : 'text-text-muted-dark hover:text-text-primary-dark'
+              }`}
+            >
+              Unsolved ({totalUnsolvedCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('solved')}
+              className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
+                statusFilter === 'solved'
+                  ? 'bg-emerald-500 text-bg-dark font-bold shadow-sm'
+                  : 'text-text-muted-dark hover:text-emerald-400'
+              }`}
+            >
+              Finished ({totalSolvedCount})
+            </button>
+          </div>
+
+          {/* Search Bar */}
+          <div className="relative w-full sm:w-56">
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-muted-dark" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search problem, pattern..."
+              className="w-full rounded-lg border border-surface-border-dark bg-surface-hover-dark pl-9 pr-3 py-1 font-sans text-xs text-text-primary-dark focus:border-streak focus:outline-none"
+            />
+          </div>
         </div>
       </div>
 
@@ -77,21 +126,36 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
       <div className="space-y-3">
         {categories.map((category) => {
           const catProgress = getCategoryProgress(category, solves);
-          const isCatExpanded = !!expandedCategories[category.id] || searchQuery.length > 0;
+          const isFilterActive = searchQuery.length > 0 || statusFilter !== 'all';
+          const isCatExpanded = !!expandedCategories[category.id] || isFilterActive;
 
-          // Filter by search query if present
-          const matchingPatterns = category.patterns.filter((pat) => {
-            if (!searchQuery) return true;
-            const q = searchQuery.toLowerCase();
-            if (pat.name.toLowerCase().includes(q)) return true;
-            return pat.problems.some(
-              (prob) =>
-                prob.title.toLowerCase().includes(q) ||
-                (prob.number !== undefined && String(prob.number).includes(q))
-            );
-          });
+          // Filter matching patterns and problems
+          const matchingPatterns = category.patterns
+            .map((pat) => {
+              const matchingProblems = pat.problems.filter((prob) => {
+                const key = getProblemKey(pat.id, prob);
+                const isSolved = !!solves[key];
 
-          if (searchQuery && matchingPatterns.length === 0) return null;
+                if (statusFilter === 'unsolved' && isSolved) return false;
+                if (statusFilter === 'solved' && !isSolved) return false;
+
+                if (!searchQuery) return true;
+                const q = searchQuery.toLowerCase();
+                return (
+                  prob.title.toLowerCase().includes(q) ||
+                  (prob.number !== undefined && String(prob.number).includes(q)) ||
+                  pat.name.toLowerCase().includes(q)
+                );
+              });
+
+              return {
+                ...pat,
+                problems: matchingProblems,
+              };
+            })
+            .filter((pat) => pat.problems.length > 0);
+
+          if (isFilterActive && matchingPatterns.length === 0) return null;
 
           return (
             <div key={category.id} className="rounded-lg border border-surface-border-dark/60 bg-surface-dark/60 overflow-hidden">
@@ -125,7 +189,7 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
                 <div className="border-t border-surface-border-dark/40 bg-bg-dark/40 p-2 space-y-2">
                   {matchingPatterns.map((pattern) => {
                     const patProgress = getPatternProgress(pattern, solves);
-                    const isPatExpanded = !!expandedPatterns[pattern.id] || searchQuery.length > 0;
+                    const isPatExpanded = !!expandedPatterns[pattern.id] || isFilterActive;
 
                     return (
                       <div key={pattern.id} className="rounded-md border border-surface-border-dark/40 bg-surface-dark/40">
@@ -199,7 +263,7 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
                                     <div
                                       onClick={() => onSelectKey(key)}
                                       className="cursor-pointer truncate flex-1 min-w-0"
-                                      title="Click title to practice again (jump queue without toggling solve status)"
+                                      title="Click title to inspect / practice again in the hero card without losing solve date"
                                     >
                                       <div className="flex items-center gap-1.5 truncate">
                                         {prob.number !== undefined && (
@@ -221,20 +285,25 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
                                     </div>
                                   </div>
 
-                                  {/* Right side: Solved Date or Link Icon */}
+                                  {/* Right side: Solved Date AND Always-Accessible External Link Icon */}
                                   <div className="flex items-center gap-2 shrink-0">
-                                    {isSolved ? (
+                                    {isSolved && (
                                       <span className="font-mono text-[10px] text-emerald-400/90 font-medium px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
                                         Solved {formatDateStr(solve.solvedAt, 'MMM d')}
                                       </span>
-                                    ) : prob.url ? (
+                                    )}
+                                    {prob.url ? (
                                       <a
                                         href={prob.url}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         onClick={(e) => e.stopPropagation()}
-                                        className="text-text-muted-dark hover:text-streak p-1 transition-colors"
-                                        title="Open problem link"
+                                        className={`p-1 transition-colors rounded hover:bg-surface-hover-dark ${
+                                          isSolved
+                                            ? 'text-emerald-400 hover:text-emerald-300'
+                                            : 'text-text-muted-dark hover:text-streak'
+                                        }`}
+                                        title={`Open ${prob.title} in new tab`}
                                       >
                                         <ExternalLink className="w-3.5 h-3.5" />
                                       </a>

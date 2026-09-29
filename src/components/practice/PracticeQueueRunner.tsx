@@ -27,6 +27,7 @@ export const PracticeQueueRunner: React.FC = () => {
 
   const dailyBatchSize = useSettingsStore((state) => state.settings.dailyBatchSize);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [reviewProblemKey, setReviewProblemKey] = useState<string | null>(null);
 
   // Active sheet & state
   const activeSheet = sheets[activeSheetId] || Object.values(sheets)[0];
@@ -39,9 +40,10 @@ export const PracticeQueueRunner: React.FC = () => {
     skipped: [],
   };
 
-  // Check batch reset on load/switch
+  // Check batch reset on load/switch and clear review problem on sheet switch
   React.useEffect(() => {
     checkBatchReset();
+    setReviewProblemKey(null);
   }, [checkBatchReset, activeSheetId]);
 
   // Map of problems in active sheet
@@ -49,8 +51,26 @@ export const PracticeQueueRunner: React.FC = () => {
 
   // Current problem key & data (automatically skipping already-solved problems)
   const currentPointer = getNextUnsolvedIndex(activeState.queueOrder, activeState.queuePointer, activeState.solves);
-  const currentKey = currentPointer < activeState.queueOrder.length ? activeState.queueOrder[currentPointer] : null;
-  const currentProblem = currentKey ? problemMap.get(currentKey) || null : null;
+  const queueKey = currentPointer < activeState.queueOrder.length ? activeState.queueOrder[currentPointer] : null;
+
+  // Selected problem: if user clicked a solved problem, show in review mode; otherwise show active queue head
+  const effectiveKey = reviewProblemKey || queueKey;
+  const displayedProblem = effectiveKey ? problemMap.get(effectiveKey) || null : null;
+  const isReviewMode = Boolean(reviewProblemKey && effectiveKey && activeState.solves[effectiveKey]);
+  const solveData = effectiveKey ? activeState.solves[effectiveKey] || null : null;
+
+  const handleSelectKey = (key: string) => {
+    if (activeState.solves[key]) {
+      // Solved problem clicked: open in review mode without disrupting queue position or solve date
+      setReviewProblemKey(key);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Unsolved problem: jump queue pointer and clear review mode
+      setReviewProblemKey(null);
+      jumpToKey(key);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // Active sheet progress
   const activeSheetProgress = computeSheetProgress(activeSheet, activeState.solves);
@@ -119,10 +139,19 @@ export const PracticeQueueRunner: React.FC = () => {
 
       {/* Hero Current Problem Card */}
       <CurrentProblemCard
-        currentProblem={currentProblem}
-        onMarkSolved={markCurrentSolved}
-        onSkip={skipCurrent}
+        currentProblem={displayedProblem}
+        solve={solveData}
+        isReviewMode={isReviewMode}
+        onMarkSolved={() => {
+          setReviewProblemKey(null);
+          markCurrentSolved();
+        }}
+        onSkip={() => {
+          setReviewProblemKey(null);
+          skipCurrent();
+        }}
         onShuffle={shuffleRemaining}
+        onExitReview={() => setReviewProblemKey(null)}
       />
 
       {/* Today's Batch & Sheet Progress Panel */}
@@ -138,9 +167,17 @@ export const PracticeQueueRunner: React.FC = () => {
         <PatternBrowser
           sheet={activeSheet}
           solves={activeState.solves}
-          currentKey={currentKey}
-          onSelectKey={jumpToKey}
-          onToggleSolved={(patternId, problemId) => toggleSolved(activeSheetId, patternId, problemId)}
+          currentKey={effectiveKey}
+          onSelectKey={handleSelectKey}
+          onToggleSolved={(patternId, problemId) => {
+            if (reviewProblemKey) {
+              const currentProbKey = effectiveKey;
+              if (currentProbKey && currentProbKey.endsWith(`:${problemId}`)) {
+                setReviewProblemKey(null);
+              }
+            }
+            toggleSolved(activeSheetId, patternId, problemId);
+          }}
         />
       )}
 
