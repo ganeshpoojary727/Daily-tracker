@@ -7,12 +7,14 @@ import { TaskCard } from './TaskCard';
 import { AddCategoryModal } from './AddCategoryModal';
 import { getTodayStr } from '../../lib/dateUtils';
 import { ProgressBar } from '../ui/ProgressBar';
+import { ActiveGoalsSection } from '../goals/ActiveGoalsSection';
 
 interface DailyChecklistProps {
   initialDate?: string | null;
+  onNavigateToGoals?: () => void;
 }
 
-export const DailyChecklist: React.FC<DailyChecklistProps> = ({ initialDate }) => {
+export const DailyChecklist: React.FC<DailyChecklistProps> = ({ initialDate, onNavigateToGoals }) => {
   const [selectedDate, setSelectedDate] = useState<string>(initialDate || getTodayStr());
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
@@ -103,6 +105,9 @@ export const DailyChecklist: React.FC<DailyChecklistProps> = ({ initialDate }) =
           />
         ))}
       </div>
+
+      {/* Active Goals & Countdowns Section */}
+      <ActiveGoalsSection onNavigateToGoals={onNavigateToGoals} />
 
       {/* Archived Categories Section */}
       {archivedCategories.length > 0 && (

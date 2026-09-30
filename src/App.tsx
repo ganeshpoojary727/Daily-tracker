@@ -51,7 +51,12 @@ export function App() {
 
   return (
     <Layout activeTab={activeTab} onSelectTab={setActiveTab}>
-      {activeTab === 'checklist' && <DailyChecklist initialDate={selectedDateForChecklist} />}
+      {activeTab === 'checklist' && (
+        <DailyChecklist
+          initialDate={selectedDateForChecklist}
+          onNavigateToGoals={() => setActiveTab('goals')}
+        />
+      )}
       {activeTab === 'calendar' && (
         <StreakHeatmap onSelectDateToLog={handleSelectDateFromCalendar} />
       )}

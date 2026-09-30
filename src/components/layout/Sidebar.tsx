@@ -1,8 +1,6 @@
 import React from 'react';
 import { CheckSquare, Calendar, Target, Code, BarChart3, Settings, X } from 'lucide-react';
 import { ViewTab } from '../../types';
-import { useGoalStore } from '../../store/useGoalStore';
-import { GoalTimerSidebarWidget } from '../goals/GoalTimer';
 
 interface SidebarProps {
   activeTab: ViewTab;
@@ -17,7 +15,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen,
   onCloseMobile,
 }) => {
-  const goals = useGoalStore((state) => state.goals);
 
   const navItems: { id: ViewTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
     { id: 'checklist', label: 'Daily Checklist', icon: CheckSquare },
@@ -58,17 +55,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </nav>
-
-        {/* Live Goal Countdown Widget */}
-        <div>
-          <GoalTimerSidebarWidget
-            goals={goals}
-            onOpenGoalsTab={() => {
-              onSelectTab('goals');
-              onCloseMobile();
-            }}
-          />
-        </div>
       </div>
 
       {/* Footer Info */}
