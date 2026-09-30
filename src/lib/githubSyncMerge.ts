@@ -226,6 +226,17 @@ export function mergePracticeStates(
         ? remoteState.todayBatchStart
         : localState.todayBatchStart ?? remoteState.todayBatchStart ?? 0;
 
+      // Merge revisitKeys (union of both sides)
+      const localRevisit = localState.revisitKeys || {};
+      const remoteRevisit = remoteState.revisitKeys || {};
+      const mergedRevisit: Record<string, { taggedAt: string; note?: string }> = { ...localRevisit };
+      for (const [rKey, rTag] of Object.entries(remoteRevisit)) {
+        if (!mergedRevisit[rKey]) {
+          mergedRevisit[rKey] = rTag;
+        }
+        // If both sides tagged, keep the one already there (local wins)
+      }
+
       merged[sheetId] = {
         queueOrder,
         queuePointer,
@@ -233,6 +244,7 @@ export function mergePracticeStates(
         lastBatchDate,
         solves: mergedSolves,
         skipped,
+        revisitKeys: mergedRevisit,
       };
     }
   }

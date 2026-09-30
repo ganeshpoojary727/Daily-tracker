@@ -100,6 +100,11 @@ export interface ProblemSolve {
   solvedAt: string; // ISO date "YYYY-MM-DD"
 }
 
+export interface RevisitTag {
+  taggedAt: string; // ISO date "YYYY-MM-DD"
+  note?: string; // optional user note about why it was hard
+}
+
 export interface PracticeState {
   queueOrder: string[]; // ordered "patternId:problemId" keys
   queuePointer: number;
@@ -107,6 +112,7 @@ export interface PracticeState {
   lastBatchDate: string; // "YYYY-MM-DD"
   solves: Record<string, ProblemSolve>; // key: "patternId:problemId"
   skipped: string[];
+  revisitKeys: Record<string, RevisitTag>; // key: "patternId:problemId"
 }
 
 export interface MultiSheetState {

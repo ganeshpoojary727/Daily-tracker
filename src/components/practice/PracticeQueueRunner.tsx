@@ -24,6 +24,8 @@ export const PracticeQueueRunner: React.FC = () => {
   const jumpToKey = usePracticeStore((state) => state.jumpToKey);
   const shuffleRemaining = usePracticeStore((state) => state.shuffleRemaining);
   const checkBatchReset = usePracticeStore((state) => state.checkBatchReset);
+  const tagRevisit = usePracticeStore((state) => state.tagRevisit);
+  const untagRevisit = usePracticeStore((state) => state.untagRevisit);
 
   const dailyBatchSize = useSettingsStore((state) => state.settings.dailyBatchSize);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -38,6 +40,7 @@ export const PracticeQueueRunner: React.FC = () => {
     lastBatchDate: getTodayStr(),
     solves: {},
     skipped: [],
+    revisitKeys: {},
   };
 
   // Check batch reset on load/switch and clear review problem on sheet switch
@@ -58,6 +61,7 @@ export const PracticeQueueRunner: React.FC = () => {
   const displayedProblem = effectiveKey ? problemMap.get(effectiveKey) || null : null;
   const isReviewMode = Boolean(reviewProblemKey && effectiveKey && activeState.solves[effectiveKey]);
   const solveData = effectiveKey ? activeState.solves[effectiveKey] || null : null;
+  const isRevisitTagged = Boolean(effectiveKey && (activeState.revisitKeys || {})[effectiveKey]);
 
   const handleSelectKey = (key: string) => {
     if (activeState.solves[key]) {
@@ -142,6 +146,7 @@ export const PracticeQueueRunner: React.FC = () => {
         currentProblem={displayedProblem}
         solve={solveData}
         isReviewMode={isReviewMode}
+        isRevisitTagged={isRevisitTagged}
         onMarkSolved={() => {
           setReviewProblemKey(null);
           markCurrentSolved();
@@ -152,6 +157,12 @@ export const PracticeQueueRunner: React.FC = () => {
         }}
         onShuffle={shuffleRemaining}
         onExitReview={() => setReviewProblemKey(null)}
+        onTagRevisit={() => {
+          if (effectiveKey) tagRevisit(activeSheetId, effectiveKey);
+        }}
+        onUntagRevisit={() => {
+          if (effectiveKey) untagRevisit(activeSheetId, effectiveKey);
+        }}
       />
 
       {/* Today's Batch & Sheet Progress Panel */}
@@ -165,8 +176,10 @@ export const PracticeQueueRunner: React.FC = () => {
       {/* Collapsible Pattern Browser Tree */}
       {activeSheet && (
         <PatternBrowser
+          key={activeSheet.id}
           sheet={activeSheet}
           solves={activeState.solves}
+          revisitKeys={activeState.revisitKeys || {}}
           currentKey={effectiveKey}
           onSelectKey={handleSelectKey}
           onToggleSolved={(patternId, problemId) => {

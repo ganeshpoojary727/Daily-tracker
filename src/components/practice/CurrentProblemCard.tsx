@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, CheckCircle2, SkipForward, Shuffle, Sparkles, BookOpen } from 'lucide-react';
+import { ExternalLink, CheckCircle2, SkipForward, Shuffle, Sparkles, BookOpen, Bookmark } from 'lucide-react';
 import { FlattenedProblem } from '../../lib/problemUtils';
 import { ProblemSolve } from '../../types';
 import { formatDateStr } from '../../lib/dateUtils';
@@ -8,20 +8,26 @@ interface CurrentProblemCardProps {
   currentProblem: FlattenedProblem | null;
   solve?: ProblemSolve | null;
   isReviewMode?: boolean;
+  isRevisitTagged?: boolean;
   onMarkSolved: () => void;
   onSkip: () => void;
   onShuffle: () => void;
   onExitReview?: () => void;
+  onTagRevisit?: () => void;
+  onUntagRevisit?: () => void;
 }
 
 export const CurrentProblemCard: React.FC<CurrentProblemCardProps> = ({
   currentProblem,
   solve,
   isReviewMode = false,
+  isRevisitTagged = false,
   onMarkSolved,
   onSkip,
   onShuffle,
   onExitReview,
+  onTagRevisit,
+  onUntagRevisit,
 }) => {
   if (!currentProblem) {
     return (
@@ -66,14 +72,20 @@ export const CurrentProblemCard: React.FC<CurrentProblemCardProps> = ({
           )}
         </div>
 
-        {isReviewMode && (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {isReviewMode && (
             <span className="flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-1 text-xs font-mono font-semibold text-emerald-400">
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Finished on {solve?.solvedAt ? formatDateStr(solve.solvedAt, 'MMM d, yyyy') : 'Completed'}</span>
             </span>
-          </div>
-        )}
+          )}
+          {isRevisitTagged && (
+            <span className="flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-xs font-mono font-semibold text-amber-400">
+              <Bookmark className="w-3.5 h-3.5 fill-amber-400" />
+              <span>Revisit Later</span>
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Problem Title & Notes */}
@@ -101,20 +113,43 @@ export const CurrentProblemCard: React.FC<CurrentProblemCardProps> = ({
 
       {/* Action Buttons */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-surface-border-dark/60">
-        {/* Dynamic External Link (Hidden if no URL) */}
-        {problem.url ? (
-          <a
-            href={problem.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-xl border border-surface-border-dark bg-surface-hover-dark px-4 py-2.5 font-display text-xs font-semibold text-text-primary-dark hover:border-streak hover:text-streak transition-all shadow-sm"
-          >
-            <span>Open Problem</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        ) : (
-          <div /> /* Empty spacer */
-        )}
+        {/* Left: External Link + Revisit Tag */}
+        <div className="flex items-center gap-2">
+          {problem.url && (
+            <a
+              href={problem.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-xl border border-surface-border-dark bg-surface-hover-dark px-4 py-2.5 font-display text-xs font-semibold text-text-primary-dark hover:border-streak hover:text-streak transition-all shadow-sm"
+            >
+              <span>Open Problem</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          )}
+
+          {/* Revisit Later Toggle */}
+          {isRevisitTagged ? (
+            <button
+              type="button"
+              onClick={onUntagRevisit}
+              className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 py-2.5 font-mono text-xs font-semibold text-amber-400 hover:bg-amber-500/25 transition-all"
+              title="Remove revisit tag"
+            >
+              <Bookmark className="w-3.5 h-3.5 fill-amber-400" />
+              <span>Remove Revisit</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onTagRevisit}
+              className="flex items-center gap-1.5 rounded-xl border border-surface-border-dark bg-surface-hover-dark px-3 py-2.5 font-mono text-xs text-text-muted-dark hover:border-amber-500/40 hover:text-amber-400 transition-all"
+              title="Tag this problem to revisit later"
+            >
+              <Bookmark className="w-3.5 h-3.5" />
+              <span>Revisit Later</span>
+            </button>
+          )}
+        </div>
 
         {/* Primary Action Buttons */}
         <div className="flex items-center gap-2">

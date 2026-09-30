@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { PracticeSheet, PracticeState, ProblemSolve, SheetCategory } from '../types';
+import { PracticeSheet, PracticeState, ProblemSolve, RevisitTag, SheetCategory } from '../types';
 import { appStorage } from '../lib/storage';
 import { flattenProblems, getNextUnsolvedIndex } from '../lib/problemUtils';
 import { getTodayStr } from '../lib/dateUtils';
@@ -27,6 +27,7 @@ export const DEFAULT_PRACTICE_STATE: PracticeState = {
   lastBatchDate: getTodayStr(),
   solves: {},
   skipped: [],
+  revisitKeys: {},
 };
 
 interface MultiSheetStorageData {
@@ -49,6 +50,9 @@ interface PracticeStoreState extends MultiSheetStorageData {
   resetQueue: (sheetId?: string) => void;
   checkBatchReset: () => void;
   setPracticeState: (state: any) => void;
+
+  tagRevisit: (sheetId: string, key: string, note?: string) => void;
+  untagRevisit: (sheetId: string, key: string) => void;
 }
 
 // Helper to initialize or migrate storage
@@ -75,14 +79,18 @@ function loadInitialStoreData(): MultiSheetStorageData {
     // Ensure all sheets have a PracticeState
     const statesBySheet: Record<string, PracticeState> = {};
     for (const sId of Object.keys(sheets)) {
-      statesBySheet[sId] = rawStored.statesBySheet[sId] || {
-        queueOrder: flattenProblems(sheets[sId]).map((item) => item.key),
-        queuePointer: 0,
-        todayBatchStart: 0,
-        lastBatchDate: getTodayStr(),
-        solves: {},
-        skipped: [],
-      };
+      const existing = rawStored.statesBySheet[sId];
+      statesBySheet[sId] = existing
+        ? { ...existing, revisitKeys: existing.revisitKeys || {} }
+        : {
+            queueOrder: flattenProblems(sheets[sId]).map((item) => item.key),
+            queuePointer: 0,
+            todayBatchStart: 0,
+            lastBatchDate: getTodayStr(),
+            solves: {},
+            skipped: [],
+            revisitKeys: {},
+          };
     }
 
     return { sheets, activeSheetId, statesBySheet };
@@ -101,6 +109,7 @@ function loadInitialStoreData(): MultiSheetStorageData {
         lastBatchDate: rawStored.lastBatchDate || getTodayStr(),
         solves: rawStored.solves || {},
         skipped: rawStored.skipped || [],
+        revisitKeys: rawStored.revisitKeys || {},
       },
     },
   };
@@ -140,6 +149,7 @@ export const usePracticeStore = create<PracticeStoreState>((set, get) => {
         lastBatchDate: getTodayStr(),
         solves: {},
         skipped: [],
+        revisitKeys: {},
       };
 
       const updatedSheets = { ...sheets, [newSheet.id]: newSheet };
@@ -369,6 +379,7 @@ export const usePracticeStore = create<PracticeStoreState>((set, get) => {
         lastBatchDate: getTodayStr(),
         solves: {},
         skipped: [],
+        revisitKeys: {},
       };
 
       const updatedStates = {
@@ -426,12 +437,51 @@ export const usePracticeStore = create<PracticeStoreState>((set, get) => {
               lastBatchDate: incoming.lastBatchDate || getTodayStr(),
               solves: incoming.solves || {},
               skipped: incoming.skipped || [],
+              revisitKeys: incoming.revisitKeys || {},
             },
           },
         };
         set(migrated);
         persist(migrated);
       }
+    },
+
+    tagRevisit: (sheetId: string, key: string, note?: string) => {
+      const { sheets, statesBySheet } = get();
+      const sheetState = statesBySheet[sheetId];
+      if (!sheetState) return;
+
+      const newRevisitKeys = {
+        ...sheetState.revisitKeys,
+        [key]: { taggedAt: getTodayStr(), note } as RevisitTag,
+      };
+
+      const updatedSheetState: PracticeState = {
+        ...sheetState,
+        revisitKeys: newRevisitKeys,
+      };
+
+      const updatedStates = { ...statesBySheet, [sheetId]: updatedSheetState };
+      set({ statesBySheet: updatedStates });
+      persist({ sheets, activeSheetId: get().activeSheetId, statesBySheet: updatedStates });
+    },
+
+    untagRevisit: (sheetId: string, key: string) => {
+      const { sheets, statesBySheet } = get();
+      const sheetState = statesBySheet[sheetId];
+      if (!sheetState) return;
+
+      const newRevisitKeys = { ...sheetState.revisitKeys };
+      delete newRevisitKeys[key];
+
+      const updatedSheetState: PracticeState = {
+        ...sheetState,
+        revisitKeys: newRevisitKeys,
+      };
+
+      const updatedStates = { ...statesBySheet, [sheetId]: updatedSheetState };
+      set({ statesBySheet: updatedStates });
+      persist({ sheets, activeSheetId: get().activeSheetId, statesBySheet: updatedStates });
     },
   };
 });

@@ -336,6 +336,7 @@ describe('mergePracticeStates', () => {
           'p1': { patternId: 'pat1', problemId: 'p1', solvedAt: '2026-09-25' },
         },
         skipped: ['skip1'],
+        revisitKeys: {},
       },
     };
 
@@ -349,6 +350,7 @@ describe('mergePracticeStates', () => {
           'p2': { patternId: 'pat1', problemId: 'p2', solvedAt: '2026-09-26' },
         },
         skipped: ['skip2'],
+        revisitKeys: {},
       },
       'sql-sheet': {
         queueOrder: ['s1'],
@@ -359,6 +361,7 @@ describe('mergePracticeStates', () => {
           's1': { patternId: 'sql1', problemId: 's1', solvedAt: '2026-09-26' },
         },
         skipped: [],
+        revisitKeys: {},
       },
     };
 

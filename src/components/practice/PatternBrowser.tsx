@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Check, Video, Search, ExternalLink } from 'lucide-react';
-import { PracticeSheet, ProblemSolve } from '../../types';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { ChevronDown, ChevronRight, Check, Video, Search, ExternalLink, Bookmark } from 'lucide-react';
+import { PracticeSheet, ProblemSolve, RevisitTag } from '../../types';
 import { getPatternProgress, getCategoryProgress, getProblemKey } from '../../lib/problemUtils';
 import { ProgressBar } from '../ui/ProgressBar';
 import { formatDateStr } from '../../lib/dateUtils';
@@ -8,6 +8,7 @@ import { formatDateStr } from '../../lib/dateUtils';
 interface PatternBrowserProps {
   sheet: PracticeSheet;
   solves: Record<string, ProblemSolve>;
+  revisitKeys: Record<string, RevisitTag>;
   currentKey: string | null;
   onSelectKey: (key: string) => void;
   onToggleSolved: (patternId: string, problemId: string) => void;
@@ -16,19 +17,79 @@ interface PatternBrowserProps {
 export const PatternBrowser: React.FC<PatternBrowserProps> = ({
   sheet,
   solves,
+  revisitKeys,
   currentKey,
   onSelectKey,
   onToggleSolved,
 }) => {
   const categories = sheet.categories;
+
+  // Find which category & pattern contain the current problem so we can auto-expand them
+  const initialExpand = useMemo(() => {
+    let catId = categories[0]?.id || '';
+    let patId = categories[0]?.patterns[0]?.id || '';
+
+    if (currentKey) {
+      for (const cat of categories) {
+        for (const pat of cat.patterns) {
+          for (const prob of pat.problems) {
+            if (getProblemKey(pat.id, prob) === currentKey) {
+              catId = cat.id;
+              patId = pat.id;
+              break;
+            }
+          }
+        }
+      }
+    }
+    return { catId, patId };
+  // Only compute on first mount (sheet/currentKey at mount time)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sheet.id]);
+
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    [categories[0]?.id || '']: true,
+    [initialExpand.catId]: true,
   });
   const [expandedPatterns, setExpandedPatterns] = useState<Record<string, boolean>>({
-    [categories[0]?.patterns[0]?.id || '']: true,
+    [initialExpand.patId]: true,
   });
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'unsolved' | 'solved'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'unsolved' | 'solved' | 'revisit'>('all');
+
+  // Ref for the current problem row — used for auto-scroll on mount
+  const currentProblemRef = useRef<HTMLDivElement>(null);
+  const hasScrolledRef = useRef(false);
+
+  // Auto-expand the category and pattern containing currentKey if not already open
+  useEffect(() => {
+    if (!currentKey) return;
+    for (const cat of categories) {
+      for (const pat of cat.patterns) {
+        for (const prob of pat.problems) {
+          if (getProblemKey(pat.id, prob) === currentKey) {
+            setExpandedCategories((prev) => (prev[cat.id] ? prev : { ...prev, [cat.id]: true }));
+            setExpandedPatterns((prev) => (prev[pat.id] ? prev : { ...prev, [pat.id]: true }));
+            return;
+          }
+        }
+      }
+    }
+  }, [currentKey, categories]);
+
+  // Scroll to the current problem row on initial mount once it is rendered
+  useEffect(() => {
+    if (currentProblemRef.current && !hasScrolledRef.current) {
+      hasScrolledRef.current = true;
+      // Delay to let collapsible animation/DOM layout complete before scrolling
+      const timer = setTimeout(() => {
+        currentProblemRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [currentKey, expandedCategories, expandedPatterns]);
 
   const toggleCategory = (catId: string) => {
     setExpandedCategories((prev) => ({ ...prev, [catId]: !prev[catId] }));
@@ -42,6 +103,7 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
   let totalPatternsCount = 0;
   let totalProblemsCount = 0;
   let totalSolvedCount = 0;
+  let totalRevisitCount = 0;
 
   for (const cat of categories) {
     totalPatternsCount += cat.patterns.length;
@@ -50,6 +112,7 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
       for (const prob of pat.problems) {
         const key = getProblemKey(pat.id, prob);
         if (solves[key]) totalSolvedCount++;
+        if (revisitKeys[key]) totalRevisitCount++;
       }
     }
   }
@@ -106,6 +169,17 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
             >
               Finished ({totalSolvedCount})
             </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('revisit')}
+              className={`rounded-md px-2.5 py-1 font-semibold transition-all ${
+                statusFilter === 'revisit'
+                  ? 'bg-amber-500 text-bg-dark font-bold shadow-sm'
+                  : 'text-text-muted-dark hover:text-amber-400'
+              }`}
+            >
+              Revisit ({totalRevisitCount})
+            </button>
           </div>
 
           {/* Search Bar */}
@@ -135,9 +209,11 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
               const matchingProblems = pat.problems.filter((prob) => {
                 const key = getProblemKey(pat.id, prob);
                 const isSolved = !!solves[key];
+                const isRevisit = !!revisitKeys[key];
 
                 if (statusFilter === 'unsolved' && isSolved) return false;
                 if (statusFilter === 'solved' && !isSolved) return false;
+                if (statusFilter === 'revisit' && !isRevisit) return false;
 
                 if (!searchQuery) return true;
                 const q = searchQuery.toLowerCase();
@@ -227,11 +303,13 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
                               const key = getProblemKey(pattern.id, prob);
                               const solve = solves[key];
                               const isSolved = !!solve;
+                              const isRevisit = !!revisitKeys[key];
                               const isCurrent = currentKey === key;
 
                               return (
                                 <div
                                   key={key}
+                                  ref={isCurrent ? currentProblemRef : undefined}
                                   className={`flex items-center justify-between p-2 rounded text-xs transition-colors ${
                                     isCurrent
                                       ? 'bg-streak/20 border border-streak/40 text-white font-bold'
@@ -285,8 +363,14 @@ export const PatternBrowser: React.FC<PatternBrowserProps> = ({
                                     </div>
                                   </div>
 
-                                  {/* Right side: Solved Date AND Always-Accessible External Link Icon */}
+                                  {/* Right side: Revisit Tag + Solved Date + External Link Icon */}
                                   <div className="flex items-center gap-2 shrink-0">
+                                    {isRevisit && (
+                                      <span className="flex items-center gap-1 font-mono text-[10px] text-amber-400/90 font-medium px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20" title="Tagged for revisit">
+                                        <Bookmark className="w-3 h-3 fill-amber-400" />
+                                        <span className="hidden sm:inline">Revisit</span>
+                                      </span>
+                                    )}
                                     {isSolved && (
                                       <span className="font-mono text-[10px] text-emerald-400/90 font-medium px-1.5 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">
                                         Solved {formatDateStr(solve.solvedAt, 'MMM d')}
