@@ -80,35 +80,70 @@ function loadInitialStoreData(): MultiSheetStorageData {
     const statesBySheet: Record<string, PracticeState> = {};
     for (const sId of Object.keys(sheets)) {
       const existing = rawStored.statesBySheet[sId];
-      statesBySheet[sId] = existing
-        ? { ...existing, revisitKeys: existing.revisitKeys || {} }
-        : {
-            queueOrder: flattenProblems(sheets[sId]).map((item) => item.key),
-            queuePointer: 0,
-            todayBatchStart: 0,
-            lastBatchDate: getTodayStr(),
-            solves: {},
-            skipped: [],
-            revisitKeys: {},
-          };
+      if (!existing) {
+        statesBySheet[sId] = {
+          queueOrder: flattenProblems(sheets[sId]).map((item) => item.key),
+          queuePointer: 0,
+          todayBatchStart: 0,
+          lastBatchDate: getTodayStr(),
+          solves: {},
+          skipped: [],
+          revisitKeys: {},
+        };
+      } else if (sId === builtInDsaSheet.id) {
+        // Built-in sheet: reconcile queueOrder to match the new pedagogical sheet ordering
+        // while preserving 100% of all solves, revisit keys, notes, and skipped items!
+        const canonicalKeys = flattenProblems(builtInDsaSheet).map((item) => item.key);
+        const solves = existing.solves || {};
+        const revisitKeys = existing.revisitKeys || {};
+        const skipped = existing.skipped || [];
+
+        // Build new queue order: canonical keys not in skipped, followed by skipped
+        const nonSkippedCanonical = canonicalKeys.filter((k) => !skipped.includes(k));
+        const skippedCanonical = canonicalKeys.filter((k) => skipped.includes(k));
+        const newQueueOrder = [...nonSkippedCanonical, ...skippedCanonical];
+
+        // Pointer to next unsolved problem in new order
+        const nextPointer = getNextUnsolvedIndex(newQueueOrder, 0, solves);
+
+        statesBySheet[sId] = {
+          ...existing,
+          queueOrder: newQueueOrder,
+          queuePointer: nextPointer,
+          solves,
+          revisitKeys,
+          skipped,
+        };
+      } else {
+        statesBySheet[sId] = { ...existing, revisitKeys: existing.revisitKeys || {} };
+      }
     }
 
-    return { sheets, activeSheetId, statesBySheet };
+    const nextStorageData = { sheets, activeSheetId, statesBySheet };
+    appStorage.setItem(STORAGE_KEY_PRACTICE, nextStorageData);
+    return nextStorageData;
   }
 
   // Legacy flat PracticeState exists in storage -> Migrate it!
-  const legacyQueueOrder = rawStored.queueOrder && rawStored.queueOrder.length > 0 ? rawStored.queueOrder : defaultQueueOrder;
+  const legacySolves = rawStored.solves || {};
+  const legacySkipped = rawStored.skipped || [];
+  const canonicalKeys = defaultQueueOrder;
+  const nonSkipped = canonicalKeys.filter((k) => !legacySkipped.includes(k));
+  const skippedPart = canonicalKeys.filter((k) => legacySkipped.includes(k));
+  const migratedQueueOrder = [...nonSkipped, ...skippedPart];
+  const migratedPointer = getNextUnsolvedIndex(migratedQueueOrder, 0, legacySolves);
+
   const migratedState: MultiSheetStorageData = {
     sheets: { [builtInDsaSheet.id]: builtInDsaSheet },
     activeSheetId: builtInDsaSheet.id,
     statesBySheet: {
       [builtInDsaSheet.id]: {
-        queueOrder: legacyQueueOrder,
-        queuePointer: typeof rawStored.queuePointer === 'number' ? rawStored.queuePointer : 0,
+        queueOrder: migratedQueueOrder,
+        queuePointer: migratedPointer,
         todayBatchStart: typeof rawStored.todayBatchStart === 'number' ? rawStored.todayBatchStart : 0,
         lastBatchDate: rawStored.lastBatchDate || getTodayStr(),
-        solves: rawStored.solves || {},
-        skipped: rawStored.skipped || [],
+        solves: legacySolves,
+        skipped: legacySkipped,
         revisitKeys: rawStored.revisitKeys || {},
       },
     },
