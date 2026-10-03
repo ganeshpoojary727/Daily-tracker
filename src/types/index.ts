@@ -121,5 +121,51 @@ export interface MultiSheetState {
   statesBySheet: Record<string, PracticeState>; // independent progress per sheet
 }
 
-export type ViewTab = 'checklist' | 'calendar' | 'goals' | 'practice' | 'dashboard' | 'settings';
+export type ViewTab = 'checklist' | 'calendar' | 'goals' | 'practice' | 'courses' | 'dashboard' | 'settings';
+
+export type CoursePlatform = 'youtube-video' | 'youtube-playlist' | 'udemy' | 'coursera' | 'custom';
+
+export interface CourseChapter {
+  id: string; // unique chapter id e.g. "ch-1"
+  title: string;
+  timestampSeconds: number; // start time in seconds
+  durationSeconds?: number;
+  completed: boolean;
+  completedAt?: string; // YYYY-MM-DD
+  notes?: string;
+}
+
+export interface Course {
+  id: string; // unique slug
+  title: string;
+  instructor?: string;
+  platform: CoursePlatform;
+  url: string;
+  videoId?: string; // YouTube 11-char ID
+  playlistId?: string; // YouTube playlist ID
+  thumbnail?: string;
+  lastWatchedSeconds: number;
+  totalDurationSeconds: number;
+  linkedCategoryId: string; // daily checklist category to log progress to
+  chapters: CourseChapter[];
+  notes?: string;
+  createdAt: string; // ISO date
+  updatedAt: string; // ISO date
+}
+
+export interface CourseStoreState {
+  courses: Record<string, Course>;
+  activeCourseId: string;
+  courseOrder: string[];
+
+  // Actions
+  setActiveCourseId: (courseId: string) => void;
+  addCourse: (course: Course) => void;
+  updateCourse: (courseId: string, updates: Partial<Course>) => void;
+  deleteCourse: (courseId: string) => void;
+  updatePlaybackProgress: (courseId: string, seconds: number, totalDurationSeconds?: number) => void;
+  toggleChapterCompleted: (courseId: string, chapterId: string, dateStr?: string) => void;
+  importChaptersFromText: (courseId: string, rawText: string) => void;
+  setCourseNotes: (courseId: string, notes: string) => void;
+}
 
