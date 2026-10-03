@@ -178,6 +178,7 @@ export interface CourseStoreState {
   deleteCourse: (courseId: string) => void;
   updatePlaybackProgress: (courseId: string, seconds: number, totalDurationSeconds?: number) => void;
   toggleChapterCompleted: (courseId: string, chapterId: string, dateStr?: string) => void;
+  markChapterCompleted: (courseId: string, chapterId: string, dateStr?: string) => void;
   importChaptersFromText: (courseId: string, rawText: string) => void;
   setCourseNotes: (courseId: string, notes: string) => void;
   resetCourseToOfficial: (courseId: string) => void;

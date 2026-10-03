@@ -166,6 +166,41 @@ export const useCourseStore = create<CourseStoreState>((set, get) => {
       persist({ courses: updatedCourses, activeCourseId, courseOrder });
     },
 
+    markChapterCompleted: (courseId: string, chapterId: string, dateStr?: string) => {
+      const { courses, activeCourseId, courseOrder } = get();
+      const course = courses[courseId];
+      if (!course) return;
+
+      const target = course.chapters.find((ch) => ch.id === chapterId);
+      if (!target || target.completed) return;
+
+      const today = dateStr || getTodayStr();
+      const updatedChapters = course.chapters.map((ch) => {
+        if (ch.id === chapterId) {
+          return {
+            ...ch,
+            completed: true,
+            completedAt: today,
+          };
+        }
+        return ch;
+      });
+
+      if (course.linkedCategoryId) {
+        useTaskStore.getState().incrementTaskCount(today, course.linkedCategoryId, 1);
+      }
+
+      const updatedCourse: Course = {
+        ...course,
+        chapters: updatedChapters,
+        updatedAt: new Date().toISOString(),
+      };
+
+      const updatedCourses = { ...courses, [courseId]: updatedCourse };
+      set({ courses: updatedCourses });
+      persist({ courses: updatedCourses, activeCourseId, courseOrder });
+    },
+
     importChaptersFromText: (courseId: string, rawText: string) => {
       const { courses, activeCourseId, courseOrder } = get();
       const course = courses[courseId];

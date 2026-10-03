@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, RotateCcw, FastForward, ExternalLink, Clock } from 'lucide-react';
+import { Play, RotateCcw, FastForward, ExternalLink, Clock, Sparkles } from 'lucide-react';
 import { Course } from '../../types';
 import { useCourseStore } from '../../store/useCourseStore';
 import { formatSecondsToTimestamp } from '../../lib/courseUtils';
@@ -17,9 +17,12 @@ declare global {
 
 export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
   const updatePlaybackProgress = useCourseStore((state) => state.updatePlaybackProgress);
+  const markChapterCompleted = useCourseStore((state) => state.markChapterCompleted);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const intervalRef = useRef<any>(null);
+  const hasAutoResumedRef = useRef(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSeconds, setCurrentSeconds] = useState(course.lastWatchedSeconds || 0);
@@ -35,9 +38,25 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
     }
   }, []);
 
+  // Guarantee save to storage whenever tab is closed or reloaded
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
+        const time = playerRef.current.getCurrentTime();
+        if (typeof time === 'number' && !isNaN(time) && time > 0) {
+          updatePlaybackProgress(course.id, time);
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [course.id, updatePlaybackProgress]);
+
   // Initialize YT.Player when script is ready and container is mounted
   useEffect(() => {
     let isMounted = true;
+    hasAutoResumedRef.current = false;
 
     const initPlayer = () => {
       if (!isMounted || !containerRef.current || !window.YT || !window.YT.Player || !course.videoId) return;
@@ -51,13 +70,15 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
         }
       }
 
+      const initialStartSeconds = Math.floor(course.lastWatchedSeconds || 0);
+
       playerRef.current = new window.YT.Player(containerRef.current, {
         videoId: course.videoId,
         playerVars: {
           autoplay: 0,
           controls: 1,
           rel: 0,
-          start: Math.floor(course.lastWatchedSeconds || 0),
+          start: initialStartSeconds,
           modestbranding: 1,
         },
         events: {
@@ -68,14 +89,39 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
             if (dur && dur > 0) {
               updatePlaybackProgress(course.id, course.lastWatchedSeconds, dur);
             }
+
+            // Guarantee seek to last saved timestamp on player ready
+            if (initialStartSeconds > 0) {
+              try {
+                event.target.seekTo(initialStartSeconds, true);
+              } catch {
+                // ignore
+              }
+            }
           },
           onStateChange: (event: any) => {
             if (!isMounted) return;
             // YT.PlayerState.PLAYING is 1
             if (event.data === 1) {
               setIsPlaying(true);
+
+              // If initial play started at 0:00 while user had previously watched progress, auto-resume!
+              if (!hasAutoResumedRef.current && initialStartSeconds > 5) {
+                const cur = event.target.getCurrentTime();
+                if (cur < 3) {
+                  event.target.seekTo(initialStartSeconds, true);
+                }
+                hasAutoResumedRef.current = true;
+              }
             } else {
               setIsPlaying(false);
+              // Save progress immediately on pause or stop
+              if (typeof event.target.getCurrentTime === 'function') {
+                const cur = event.target.getCurrentTime();
+                if (typeof cur === 'number' && !isNaN(cur)) {
+                  updatePlaybackProgress(course.id, cur);
+                }
+              }
             }
           },
         },
@@ -104,7 +150,7 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
     };
   }, [course.videoId]);
 
-  // Periodic watch progress tracker (every 3 seconds while playing)
+  // Periodic watch progress tracker + Auto-complete chapters as user watches past them
   useEffect(() => {
     if (isPlaying) {
       intervalRef.current = setInterval(() => {
@@ -114,9 +160,23 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
           if (typeof time === 'number' && !isNaN(time)) {
             setCurrentSeconds(time);
             updatePlaybackProgress(course.id, time, dur);
+
+            // Auto-complete chapters as you watch past them
+            course.chapters.forEach((chapter, idx) => {
+              if (chapter.completed) return;
+              const nextChapter = course.chapters[idx + 1];
+
+              // If next chapter reached, this chapter is finished
+              if (nextChapter && time >= nextChapter.timestampSeconds - 5) {
+                markChapterCompleted(course.id, chapter.id);
+              } else if (!nextChapter && course.totalDurationSeconds > 0 && time >= course.totalDurationSeconds - 20) {
+                // Final chapter finished near end of video
+                markChapterCompleted(course.id, chapter.id);
+              }
+            });
           }
         }
-      }, 3000);
+      }, 2000);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
@@ -124,7 +184,7 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isPlaying, course.id, updatePlaybackProgress]);
+  }, [isPlaying, course.id, course.chapters, course.totalDurationSeconds, updatePlaybackProgress, markChapterCompleted]);
 
   // Global listener to seek player when user clicks a chapter in ChapterList
   useEffect(() => {
@@ -163,7 +223,16 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
   };
 
   const totalDuration = course.totalDurationSeconds || 1;
-  const progressPercent = Math.min(100, Math.round((currentSeconds / totalDuration) * 100));
+  const watchProgressPercent = Math.min(100, Math.round((currentSeconds / totalDuration) * 100));
+
+  // Determine active chapter based on currentSeconds
+  const activeChapter = course.chapters.find((ch, i) => {
+    const nextChapter = course.chapters[i + 1];
+    if (nextChapter) {
+      return currentSeconds >= ch.timestampSeconds && currentSeconds < nextChapter.timestampSeconds;
+    }
+    return currentSeconds >= ch.timestampSeconds;
+  });
 
   const externalUrlWithTime = `https://www.youtube.com/watch?v=${course.videoId}&t=${Math.floor(currentSeconds)}s`;
 
@@ -174,21 +243,47 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
         <div ref={containerRef} className="h-full w-full" />
       </div>
 
-      {/* Playback Progress Bar */}
-      <div className="mt-4 space-y-1.5">
-        <div className="flex items-center justify-between text-xs text-text-muted-dark">
-          <span className="flex items-center gap-1.5 font-mono text-amber-400 font-semibold">
-            <Clock className="w-3.5 h-3.5" />
-            {formatSecondsToTimestamp(currentSeconds)}
-          </span>
-          <span className="font-mono text-[11px] text-text-muted-dark">
-            {progressPercent}% of {formatSecondsToTimestamp(course.totalDurationSeconds)}
-          </span>
+      {/* Active Chapter / Topic Live Indicator */}
+      {activeChapter && (
+        <div className="mt-3 flex items-center justify-between rounded-lg border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="flex h-2 w-2 shrink-0 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400/90 font-mono shrink-0">
+              {activeChapter.category || 'Topic'}:
+            </span>
+            <span className="font-semibold text-text-primary-dark truncate">
+              {activeChapter.title}
+            </span>
+          </div>
+          {activeChapter.importance && (
+            <span className="shrink-0 text-[10px] font-medium text-amber-300">
+              {activeChapter.importance}
+            </span>
+          )}
         </div>
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-border-dark/60">
+      )}
+
+      {/* Live Continuous Playback Progress Bar */}
+      <div className="mt-3 space-y-1.5">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5 font-mono text-amber-400 font-semibold">
+            <Clock className="w-3.5 h-3.5" />
+            <span>{formatSecondsToTimestamp(currentSeconds)}</span>
+            <span className="text-text-muted-dark font-normal">/ {formatSecondsToTimestamp(course.totalDurationSeconds)}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1 rounded bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-400 border border-amber-500/20">
+              <Sparkles className="w-2.5 h-2.5" />
+              <span>{watchProgressPercent}% Watched</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="h-2 w-full overflow-hidden rounded-full bg-surface-border-dark/60">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-300"
-            style={{ width: `${progressPercent}%` }}
+            className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-400 transition-all duration-300"
+            style={{ width: `${watchProgressPercent}%` }}
           />
         </div>
       </div>
@@ -196,12 +291,12 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
       {/* Control Actions Row */}
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-surface-border-dark/50">
         <div className="flex items-center gap-2">
-          {/* Resume button */}
+          {/* Resume button with status indication */}
           <button
             onClick={handleResume}
             disabled={!isPlayerReady}
             className="flex items-center gap-1.5 rounded-lg bg-streak px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-all hover:bg-streak-hover disabled:opacity-50"
-            title="Resume playback at last saved timestamp"
+            title="Resume playback from your last saved position"
           >
             <Play className="w-3.5 h-3.5 fill-current" />
             <span>Resume ({formatSecondsToTimestamp(course.lastWatchedSeconds)})</span>

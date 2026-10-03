@@ -166,10 +166,20 @@ export const ChapterList: React.FC<ChapterListProps> = ({ course }) => {
             <span>Import</span>
           </button>
 
-          {/* Progress Percentage Badge */}
-          <div className="text-right pl-1">
-            <span className="text-xs font-bold font-mono text-amber-400">{progressPercent}%</span>
-            <p className="text-[9px] text-text-muted-dark">done</p>
+          {/* Dual Progress Percentage Badges */}
+          <div className="flex items-center gap-2.5 pl-2 border-l border-surface-border-dark/60">
+            <div className="text-right">
+              <span className="text-xs font-bold font-mono text-amber-400">
+                {course.totalDurationSeconds > 0
+                  ? Math.min(100, Math.round(((course.lastWatchedSeconds || 0) / course.totalDurationSeconds) * 100))
+                  : 0}%
+              </span>
+              <p className="text-[9px] text-text-muted-dark font-mono">watched</p>
+            </div>
+            <div className="text-right">
+              <span className="text-xs font-bold font-mono text-emerald-400">{progressPercent}%</span>
+              <p className="text-[9px] text-text-muted-dark font-mono">mastered</p>
+            </div>
           </div>
         </div>
       </div>
