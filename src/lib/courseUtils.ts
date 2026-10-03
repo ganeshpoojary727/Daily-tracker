@@ -74,7 +74,26 @@ export function parseTimestampsFromDescription(text: string): CourseChapter[] {
     const match = trimmed.match(regex);
     if (match) {
       const timeStr = match[1];
-      let title = match[2]?.trim() || `Chapter ${chapters.length + 1}`;
+      let remainder = match[2]?.trim() || `Chapter ${chapters.length + 1}`;
+      let title = remainder;
+      let description: string | undefined;
+      let importance: string | undefined;
+
+      // Check if remainder is tab-separated (e.g. Concept \t What is taught \t Importance)
+      if (remainder.includes('\t')) {
+        const parts = remainder.split('\t').map((p) => p.trim()).filter(Boolean);
+        if (parts.length > 0) title = parts[0];
+        if (parts.length > 1) description = parts[1];
+        if (parts.length > 2) importance = parts[2];
+      } else {
+        // Extract importance tag if embedded in title (e.g. ⭐ High, 🟡 Medium, 🔗 Prerequisite)
+        const impMatch = title.match(/(⭐\s*High(?:\s*🎯)?|🟡\s*Medium|🔗\s*Prerequisite|🎯\s*Spring\s*Boot)/i);
+        if (impMatch) {
+          importance = impMatch[0].trim();
+          title = title.replace(impMatch[0], '').trim();
+        }
+      }
+
       title = title.replace(/^[-–—:\s]+/, '').replace(/[-–—:\s]+$/, '').trim();
       if (!title) title = `Chapter ${chapters.length + 1}`;
 
@@ -82,6 +101,8 @@ export function parseTimestampsFromDescription(text: string): CourseChapter[] {
       chapters.push({
         id: `ch-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 7)}`,
         title,
+        description,
+        importance,
         timestampSeconds,
         completed: false,
       });

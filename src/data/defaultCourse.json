@@ -7,24 +7,258 @@
   "videoId": "4XTsAAHW_Tc",
   "thumbnail": "https://i.ytimg.com/vi/4XTsAAHW_Tc/hqdefault.jpg",
   "lastWatchedSeconds": 0,
-  "totalDurationSeconds": 68400,
+  "totalDurationSeconds": 172800,
   "linkedCategoryId": "study",
-  "notes": "Comprehensive full course covering Java Fundamentals, OOP, Collections, Multithreading, Spring Framework, Spring Boot 3, and Microservices architecture.",
+  "notes": "Comprehensive masterclass covering Core Java, JUnit, DSA, Git, JDBC, Servlets & JSP, Hibernate, REST APIs, Spring Framework, Spring Boot, MongoDB, and Microservices.",
   "createdAt": "2026-10-03T10:00:00.000Z",
-  "updatedAt": "2026-10-03T10:00:00.000Z",
+  "updatedAt": "2026-10-03T11:00:00.000Z",
+  "studyGuide": {
+    "mustWatch": [
+      { "range": "03:13:26 - 03:14:35", "topic": "JVM & JDK", "note": "Core Runtime & Compilation Architecture" },
+      { "range": "23:23:20 - 23:33:39", "topic": "JDBC", "note": "Database Foundation & 7 Steps of Connectivity" },
+      { "range": "30:29:58 - 31:00:00", "topic": "Hibernate", "note": "ORM Logic & Entity Mapping" },
+      { "range": "36:24:17 - 37:00:00", "topic": "Spring Framework", "note": "Dependency Injection & IoC Container" },
+      { "range": "40:41:13 - 42:00:00", "topic": "Spring Boot REST API", "note": "Modern Backend Development" },
+      { "range": "46:28:34 - 48:00:00", "topic": "Microservices", "note": "Monolith to Microservices Transition" }
+    ],
+    "prerequisiteChain": "Java Fundamentals → OOP → JDBC → Hibernate → Spring Core → Spring Boot → REST API → Microservices",
+    "springBootRelevance": {
+      "OOP": "Basis for Spring Beans and Components.",
+      "Interfaces": "Used for Repository layers in Spring Data JPA.",
+      "Exceptions": "Central to global error handling in Spring Boot (@ControllerAdvice).",
+      "JDBC / Hibernate": "Foundation for Spring Data JPA and Hibernate ORM."
+    },
+    "canWatchQuickly": [
+      { "topic": "Git Basics", "timestamp": "22:39:49", "reason": "If already familiar with standard Git CLI version control." },
+      { "topic": "JSP / Servlets", "timestamp": "24:33:04", "reason": "Only needed for historical context; Spring MVC replaces most of this." }
+    ],
+    "recommendedOrder": [
+      "Core Java Fundamentals (00:00:07)",
+      "Database Foundations / JDBC (23:23:20)",
+      "ORM Basics / Hibernate (30:29:58)",
+      "Spring Framework (36:24:17)",
+      "Spring Boot & REST APIs (40:41:13)",
+      "MongoDB Project (43:45:47)",
+      "Microservices Architecture (46:28:34)"
+    ],
+    "topConcepts": [
+      { "topic": "JVM", "timestamp": "03:13:26", "note": "Crucial for understanding how Java runs; Deep." },
+      { "topic": "JDBC Connection", "timestamp": "23:33:39", "note": "Essential for DB persistence; Deep." },
+      { "topic": "ORM / Hibernate", "timestamp": "30:29:58", "note": "Essential for modern data access; Deep." },
+      { "topic": "REST API", "timestamp": "33:49:37", "note": "Core for modern backends; Deep." },
+      { "topic": "Microservices", "timestamp": "46:28:34", "note": "Core architectural knowledge; Basics." }
+    ]
+  },
   "chapters": [
-    { "id": "ch-1", "title": "Introduction to Java & Environment Setup", "timestampSeconds": 0, "durationSeconds": 900, "completed": false },
-    { "id": "ch-2", "title": "Variables, Data Types & Operators", "timestampSeconds": 900, "durationSeconds": 1800, "completed": false },
-    { "id": "ch-3", "title": "Conditional Statements & Loops", "timestampSeconds": 2700, "durationSeconds": 2100, "completed": false },
-    { "id": "ch-4", "title": "Object-Oriented Programming (Classes & Objects)", "timestampSeconds": 4800, "durationSeconds": 3600, "completed": false },
-    { "id": "ch-5", "title": "Inheritance, Polymorphism & Encapsulation", "timestampSeconds": 8400, "durationSeconds": 3600, "completed": false },
-    { "id": "ch-6", "title": "Interfaces & Abstract Classes", "timestampSeconds": 12000, "durationSeconds": 2700, "completed": false },
-    { "id": "ch-7", "title": "Exception Handling", "timestampSeconds": 14700, "durationSeconds": 2400, "completed": false },
-    { "id": "ch-8", "title": "Java Collections Framework (List, Set, Map)", "timestampSeconds": 17100, "durationSeconds": 4200, "completed": false },
-    { "id": "ch-9", "title": "Streams API & Lambda Expressions", "timestampSeconds": 21300, "durationSeconds": 3600, "completed": false },
-    { "id": "ch-10", "title": "Spring Framework Core & Dependency Injection", "timestampSeconds": 24900, "durationSeconds": 4800, "completed": false },
-    { "id": "ch-11", "title": "Spring Boot Setup & REST Controllers", "timestampSeconds": 29700, "durationSeconds": 5400, "completed": false },
-    { "id": "ch-12", "title": "Spring Data JPA & Database Integration", "timestampSeconds": 35100, "durationSeconds": 5400, "completed": false },
-    { "id": "ch-13", "title": "Building Microservices & Service Registry (Eureka)", "timestampSeconds": 40500, "durationSeconds": 7200, "completed": false }
+    {
+      "id": "ch-1",
+      "category": "1. Core Java",
+      "title": "Introduction to Java",
+      "description": "Overview of language popularity/enterprise use",
+      "importance": "⭐ High",
+      "timestampSeconds": 7,
+      "durationSeconds": 297,
+      "completed": false
+    },
+    {
+      "id": "ch-2",
+      "category": "1. Core Java",
+      "title": "Development Tools",
+      "description": "Choosing IDEs vs. Text Editors",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 304,
+      "durationSeconds": 11302,
+      "completed": false
+    },
+    {
+      "id": "ch-3",
+      "category": "1. Core Java",
+      "title": "JDK & JVM",
+      "description": "Theory of compilation and virtual machine",
+      "importance": "⭐ High",
+      "timestampSeconds": 11606,
+      "durationSeconds": 3031,
+      "completed": false
+    },
+    {
+      "id": "ch-4",
+      "category": "1. Core Java",
+      "title": "2D Arrays",
+      "description": "Theory and implementation of multi-dim arrays",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 14637,
+      "durationSeconds": 30904,
+      "completed": false
+    },
+    {
+      "id": "ch-5",
+      "category": "1. Core Java",
+      "title": "'var' Keyword",
+      "description": "Introduction to type inference",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 45541,
+      "durationSeconds": 2047,
+      "completed": false
+    },
+    {
+      "id": "ch-6",
+      "category": "2. JUnit",
+      "title": "JUnit 5",
+      "description": "Intro to testing framework",
+      "importance": "⭐ High",
+      "timestampSeconds": 47588,
+      "durationSeconds": 112,
+      "completed": false
+    },
+    {
+      "id": "ch-7",
+      "category": "2. JUnit",
+      "title": "Unit Testing",
+      "description": "Testing vs. standard QA/Testing",
+      "importance": "🔗 Prerequisite",
+      "timestampSeconds": 47700,
+      "durationSeconds": 10605,
+      "completed": false
+    },
+    {
+      "id": "ch-8",
+      "category": "3. DSA",
+      "title": "ADT",
+      "description": "Abstract Data Type overview",
+      "importance": "🔗 Prerequisite",
+      "timestampSeconds": 58305,
+      "durationSeconds": 2148,
+      "completed": false
+    },
+    {
+      "id": "ch-9",
+      "category": "3. DSA",
+      "title": "Big O Notation",
+      "description": "Complexity analysis (linear/binary search)",
+      "importance": "⭐ High",
+      "timestampSeconds": 60453,
+      "durationSeconds": 6800,
+      "completed": false
+    },
+    {
+      "id": "ch-10",
+      "category": "3. DSA",
+      "title": "Merge Sort",
+      "description": "Sorting algorithm logic and implementation",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 67253,
+      "durationSeconds": 1369,
+      "completed": false
+    },
+    {
+      "id": "ch-11",
+      "category": "3. DSA",
+      "title": "Linked List",
+      "description": "Node-based list implementation",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 68622,
+      "durationSeconds": 12967,
+      "completed": false
+    },
+    {
+      "id": "ch-12",
+      "category": "4. Git",
+      "title": "Git Clone/Logs",
+      "description": "Repo management and version history",
+      "importance": "⭐ High",
+      "timestampSeconds": 81589,
+      "durationSeconds": 2611,
+      "completed": false
+    },
+    {
+      "id": "ch-13",
+      "category": "5. JDBC",
+      "title": "JDBC Theory",
+      "description": "Seven steps for database connectivity",
+      "importance": "⭐ High",
+      "timestampSeconds": 84200,
+      "durationSeconds": 619,
+      "completed": false
+    },
+    {
+      "id": "ch-14",
+      "category": "5. JDBC",
+      "title": "MySQL Connection",
+      "description": "Coding the driver and connection logic",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 84819,
+      "durationSeconds": 3565,
+      "completed": false
+    },
+    {
+      "id": "ch-15",
+      "category": "6. Servlets & JSP",
+      "title": "Web Basics",
+      "description": "Intro to Servlet/JSP in modern context",
+      "importance": "🎯 Spring Boot",
+      "timestampSeconds": 88384,
+      "durationSeconds": 21414,
+      "completed": false
+    },
+    {
+      "id": "ch-16",
+      "category": "7. Hibernate",
+      "title": "ORM Theory",
+      "description": "Mapping Java objects to databases",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 109798,
+      "durationSeconds": 11979,
+      "completed": false
+    },
+    {
+      "id": "ch-17",
+      "category": "8. REST API / Web Services",
+      "title": "REST Fundamentals",
+      "description": "Web service design principles",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 121777,
+      "durationSeconds": 9280,
+      "completed": false
+    },
+    {
+      "id": "ch-18",
+      "category": "9. Spring Framework",
+      "title": "Framework Basics",
+      "description": "Dependency Injection and Spring architecture",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 131057,
+      "durationSeconds": 15416,
+      "completed": false
+    },
+    {
+      "id": "ch-19",
+      "category": "14. Spring Boot",
+      "title": "Spring Boot API",
+      "description": "Building REST APIs with auto-configuration",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 146473,
+      "durationSeconds": 11074,
+      "completed": false
+    },
+    {
+      "id": "ch-20",
+      "category": "17. MongoDB + Spring Boot",
+      "title": "NoSQL Integration",
+      "description": "Connecting Spring Boot to MongoDB Cloud",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 157547,
+      "durationSeconds": 9767,
+      "completed": false
+    },
+    {
+      "id": "ch-21",
+      "category": "20. Microservices",
+      "title": "Microservices Architecture",
+      "description": "Monolith vs Microservices transition",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 167314,
+      "durationSeconds": 5486,
+      "completed": false
+    }
   ]
 }

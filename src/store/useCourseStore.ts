@@ -25,8 +25,37 @@ function loadInitialCourseData(): StorageState {
       courseOrder: [defaultCourse.id],
     };
   }
+
+  // Ensure default course has the latest official syllabus while preserving user progress
+  const existingDefault = stored.courses[defaultCourse.id];
+  let mergedDefault = defaultCourse;
+  if (existingDefault) {
+    const completedMap = new Map(
+      (existingDefault.chapters || []).map((ch) => [
+        ch.id,
+        { completed: ch.completed, completedAt: ch.completedAt, notes: ch.notes },
+      ])
+    );
+    mergedDefault = {
+      ...defaultCourse,
+      lastWatchedSeconds: existingDefault.lastWatchedSeconds || defaultCourse.lastWatchedSeconds,
+      chapters: defaultCourse.chapters.map((ch) => {
+        const prev = completedMap.get(ch.id);
+        return prev
+          ? { ...ch, completed: prev.completed, completedAt: prev.completedAt, notes: prev.notes || ch.notes }
+          : ch;
+      }),
+      updatedAt: defaultCourse.updatedAt,
+    };
+  }
+
+  const mergedCourses = {
+    ...stored.courses,
+    [defaultCourse.id]: mergedDefault,
+  };
+
   return {
-    courses: { [defaultCourse.id]: defaultCourse, ...stored.courses },
+    courses: mergedCourses,
     activeCourseId: stored.activeCourseId || defaultCourse.id,
     courseOrder:
       stored.courseOrder && stored.courseOrder.length > 0
@@ -170,6 +199,33 @@ export const useCourseStore = create<CourseStoreState>((set, get) => {
       const updatedCourses = { ...courses, [courseId]: updatedCourse };
       set({ courses: updatedCourses });
       persist({ courses: updatedCourses, activeCourseId, courseOrder });
+    },
+
+    resetCourseToOfficial: (courseId: string) => {
+      const { courses, activeCourseId, courseOrder } = get();
+      if (courseId === defaultCourse.id) {
+        const existing = courses[courseId];
+        const completedMap = new Map(
+          (existing?.chapters || []).map((ch) => [
+            ch.id,
+            { completed: ch.completed, completedAt: ch.completedAt, notes: ch.notes },
+          ])
+        );
+        const refreshed: Course = {
+          ...defaultCourse,
+          lastWatchedSeconds: existing?.lastWatchedSeconds || 0,
+          chapters: defaultCourse.chapters.map((ch) => {
+            const prev = completedMap.get(ch.id);
+            return prev
+              ? { ...ch, completed: prev.completed, completedAt: prev.completedAt, notes: prev.notes || ch.notes }
+              : ch;
+          }),
+          updatedAt: new Date().toISOString(),
+        };
+        const updatedCourses = { ...courses, [courseId]: refreshed };
+        set({ courses: updatedCourses });
+        persist({ courses: updatedCourses, activeCourseId, courseOrder });
+      }
     },
   };
 });

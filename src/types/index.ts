@@ -128,11 +128,23 @@ export type CoursePlatform = 'youtube-video' | 'youtube-playlist' | 'udemy' | 'c
 export interface CourseChapter {
   id: string; // unique chapter id e.g. "ch-1"
   title: string;
+  category?: string; // module/section e.g. "1. CORE JAVA"
+  description?: string; // what is taught in this section
+  importance?: string; // e.g. "⭐ High", "🟡 Medium", "🔗 Prerequisite", "⭐ High 🎯"
   timestampSeconds: number; // start time in seconds
   durationSeconds?: number;
   completed: boolean;
   completedAt?: string; // YYYY-MM-DD
   notes?: string;
+}
+
+export interface CourseStudyGuide {
+  mustWatch?: { range: string; topic: string; note: string }[];
+  prerequisiteChain?: string;
+  springBootRelevance?: Record<string, string>;
+  canWatchQuickly?: { topic: string; timestamp: string; reason: string }[];
+  recommendedOrder?: string[];
+  topConcepts?: { topic: string; timestamp: string; note: string }[];
 }
 
 export interface Course {
@@ -149,6 +161,7 @@ export interface Course {
   linkedCategoryId: string; // daily checklist category to log progress to
   chapters: CourseChapter[];
   notes?: string;
+  studyGuide?: CourseStudyGuide;
   createdAt: string; // ISO date
   updatedAt: string; // ISO date
 }
@@ -167,5 +180,6 @@ export interface CourseStoreState {
   toggleChapterCompleted: (courseId: string, chapterId: string, dateStr?: string) => void;
   importChaptersFromText: (courseId: string, rawText: string) => void;
   setCourseNotes: (courseId: string, notes: string) => void;
+  resetCourseToOfficial: (courseId: string) => void;
 }
 
