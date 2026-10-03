@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { JavaPlaygroundPanel } from '../compiler/JavaPlaygroundPanel';
+import { useUIStore } from '../../store/useUIStore';
 import { ViewTab } from '../../types';
 
 interface LayoutProps {
@@ -12,28 +13,12 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ activeTab, onSelectTab, children }) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    return localStorage.getItem('dt_sidebar_collapsed') === 'true';
-  });
-  const [isJavaPlaygroundOpen, setIsJavaPlaygroundOpen] = useState(() => {
-    return localStorage.getItem('dt_java_panel_open') === 'true';
-  });
 
-  const toggleSidebarCollapse = () => {
-    setIsSidebarCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem('dt_sidebar_collapsed', String(next));
-      return next;
-    });
-  };
-
-  const toggleJavaPlayground = () => {
-    setIsJavaPlaygroundOpen((prev) => {
-      const next = !prev;
-      localStorage.setItem('dt_java_panel_open', String(next));
-      return next;
-    });
-  };
+  const isSidebarCollapsed = useUIStore((state) => state.isSidebarCollapsed);
+  const isJavaPlaygroundOpen = useUIStore((state) => state.isJavaPlaygroundOpen);
+  const toggleSidebarCollapsed = useUIStore((state) => state.toggleSidebarCollapsed);
+  const toggleJavaPlayground = useUIStore((state) => state.toggleJavaPlayground);
+  const setJavaPlaygroundOpen = useUIStore((state) => state.setJavaPlaygroundOpen);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -46,13 +31,13 @@ export const Layout: React.FC<LayoutProps> = ({ activeTab, onSelectTab, children
       // Ctrl + B or Cmd + B toggles Sidebar collapse
       if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
         e.preventDefault();
-        toggleSidebarCollapse();
+        toggleSidebarCollapsed();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [toggleJavaPlayground, toggleSidebarCollapsed]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-bg-dark text-text-primary-dark">
@@ -61,7 +46,7 @@ export const Layout: React.FC<LayoutProps> = ({ activeTab, onSelectTab, children
         onToggleMobileSidebar={() => setIsMobileSidebarOpen(true)}
         onOpenSettings={() => onSelectTab('settings')}
         isSidebarCollapsed={isSidebarCollapsed}
-        onToggleCollapseSidebar={toggleSidebarCollapse}
+        onToggleCollapseSidebar={toggleSidebarCollapsed}
         isJavaPlaygroundOpen={isJavaPlaygroundOpen}
         onToggleJavaPlayground={toggleJavaPlayground}
       />
@@ -75,22 +60,22 @@ export const Layout: React.FC<LayoutProps> = ({ activeTab, onSelectTab, children
           isMobileOpen={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           isCollapsed={isSidebarCollapsed}
-          onToggleCollapse={toggleSidebarCollapse}
+          onToggleCollapse={toggleSidebarCollapsed}
         />
 
         {/* View Surface - smoothly resizes when Java Playground opens */}
         <main
-          className={`flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 transition-all duration-300 ${
-            isJavaPlaygroundOpen ? 'lg:mr-[520px]' : ''
+          className={`flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 transition-all duration-300 ${
+            isJavaPlaygroundOpen ? 'lg:mr-[500px] xl:mr-[520px]' : ''
           }`}
         >
-          <div className="mx-auto max-w-7xl">{children}</div>
+          <div className={`mx-auto ${isJavaPlaygroundOpen ? 'w-full max-w-none' : 'max-w-7xl'}`}>{children}</div>
         </main>
 
         {/* Right-Side Java Compiler & Playground Panel */}
         <JavaPlaygroundPanel
           isOpen={isJavaPlaygroundOpen}
-          onClose={() => setIsJavaPlaygroundOpen(false)}
+          onClose={() => setJavaPlaygroundOpen(false)}
         />
       </div>
     </div>
