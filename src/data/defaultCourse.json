@@ -11,29 +11,103 @@
   "linkedCategoryId": "study",
   "notes": "Comprehensive masterclass covering Core Java, JUnit, DSA, Git, JDBC, Servlets & JSP, Hibernate, REST APIs, Spring Framework, Spring Boot, MongoDB, and Microservices.",
   "createdAt": "2026-10-03T10:00:00.000Z",
-  "updatedAt": "2026-10-03T11:00:00.000Z",
+  "updatedAt": "2026-10-03T11:30:00.000Z",
   "studyGuide": {
     "mustWatch": [
-      { "range": "03:13:26 - 03:14:35", "topic": "JVM & JDK", "note": "Core Runtime & Compilation Architecture" },
-      { "range": "23:23:20 - 23:33:39", "topic": "JDBC", "note": "Database Foundation & 7 Steps of Connectivity" },
-      { "range": "30:29:58 - 31:00:00", "topic": "Hibernate", "note": "ORM Logic & Entity Mapping" },
-      { "range": "36:24:17 - 37:00:00", "topic": "Spring Framework", "note": "Dependency Injection & IoC Container" },
-      { "range": "40:41:13 - 42:00:00", "topic": "Spring Boot REST API", "note": "Modern Backend Development" },
-      { "range": "46:28:34 - 48:00:00", "topic": "Microservices", "note": "Monolith to Microservices Transition" }
+      {
+        "range": "03:13:03 - 03:14:35",
+        "topic": "JVM & JDK",
+        "note": "Core Runtime & Compilation Architecture"
+      },
+      {
+        "range": "03:35:41 - 03:48:12",
+        "topic": "Stack and Heap",
+        "note": "Memory Allocation, References & Garbage Collection"
+      },
+      {
+        "range": "05:13:25 - 05:44:35",
+        "topic": "Encapsulation & Constructors",
+        "note": "Data Hiding & Object Lifecycle"
+      },
+      {
+        "range": "06:36:16 - 07:08:31",
+        "topic": "Method Overriding & Polymorphism",
+        "note": "Dynamic Method Dispatch"
+      },
+      {
+        "range": "08:07:22 - 08:27:11",
+        "topic": "Interfaces & Loose Coupling",
+        "note": "Core for Spring Bean & Repository Architecture"
+      },
+      {
+        "range": "08:53:14 - 09:10:41",
+        "topic": "Functional Interfaces & Lambdas",
+        "note": "Foundation for Modern Streams & Collections"
+      },
+      {
+        "range": "09:10:41 - 09:45:35",
+        "topic": "Exception Hierarchy & Custom Exceptions",
+        "note": "Central Global Exception Handling (@ControllerAdvice)"
+      },
+      {
+        "range": "11:03:45 - 11:37:32",
+        "topic": "Collections Framework (List, Set, Map)",
+        "note": "Essential Data Structures in Enterprise Backends"
+      },
+      {
+        "range": "11:53:15 - 12:14:09",
+        "topic": "Stream API (map, filter, reduce)",
+        "note": "Declarative Functional Data Processing"
+      },
+      {
+        "range": "23:23:20 - 23:33:39",
+        "topic": "JDBC",
+        "note": "Database Foundation & 7 Steps of Connectivity"
+      },
+      {
+        "range": "30:29:58 - 31:00:00",
+        "topic": "Hibernate",
+        "note": "ORM Logic & Entity Mapping"
+      },
+      {
+        "range": "36:24:17 - 37:00:00",
+        "topic": "Spring Framework",
+        "note": "Dependency Injection & IoC Container"
+      },
+      {
+        "range": "40:41:13 - 42:00:00",
+        "topic": "Spring Boot REST API",
+        "note": "Modern Backend Development"
+      },
+      {
+        "range": "46:28:34 - 48:00:00",
+        "topic": "Microservices",
+        "note": "Monolith to Microservices Transition"
+      }
     ],
     "prerequisiteChain": "Java Fundamentals → OOP → JDBC → Hibernate → Spring Core → Spring Boot → REST API → Microservices",
     "springBootRelevance": {
-      "OOP": "Basis for Spring Beans and Components.",
-      "Interfaces": "Used for Repository layers in Spring Data JPA.",
-      "Exceptions": "Central to global error handling in Spring Boot (@ControllerAdvice).",
-      "JDBC / Hibernate": "Foundation for Spring Data JPA and Hibernate ORM."
+      "OOP & Classes": "Basis for Spring Beans, Components, Services, and Controllers.",
+      "Interfaces": "Used for Repository layers in Spring Data JPA and dependency abstraction.",
+      "Exceptions": "Central to global error handling in Spring Boot (@ControllerAdvice / @ExceptionHandler).",
+      "JDBC / Hibernate": "Foundation for Spring Data JPA and entity persistence."
     },
     "canWatchQuickly": [
-      { "topic": "Git Basics", "timestamp": "22:39:49", "reason": "If already familiar with standard Git CLI version control." },
-      { "topic": "JSP / Servlets", "timestamp": "24:33:04", "reason": "Only needed for historical context; Spring MVC replaces most of this." }
+      {
+        "topic": "Git Basics",
+        "timestamp": "22:39:49",
+        "reason": "If already familiar with standard Git CLI version control."
+      },
+      {
+        "topic": "JSP / Servlets",
+        "timestamp": "24:33:04",
+        "reason": "Only needed for historical context; Spring MVC replaces most of this."
+      }
     ],
     "recommendedOrder": [
-      "Core Java Fundamentals (00:00:07)",
+      "Core Java Fundamentals (00:00:00)",
+      "OOP, Memory & Methods (02:51:48)",
+      "Collections & Stream API (11:03:45)",
       "Database Foundations / JDBC (23:23:20)",
       "ORM Basics / Hibernate (30:29:58)",
       "Spring Framework (36:24:17)",
@@ -42,137 +116,1117 @@
       "Microservices Architecture (46:28:34)"
     ],
     "topConcepts": [
-      { "topic": "JVM", "timestamp": "03:13:26", "note": "Crucial for understanding how Java runs; Deep." },
-      { "topic": "JDBC Connection", "timestamp": "23:33:39", "note": "Essential for DB persistence; Deep." },
-      { "topic": "ORM / Hibernate", "timestamp": "30:29:58", "note": "Essential for modern data access; Deep." },
-      { "topic": "REST API", "timestamp": "33:49:37", "note": "Core for modern backends; Deep." },
-      { "topic": "Microservices", "timestamp": "46:28:34", "note": "Core architectural knowledge; Basics." }
+      {
+        "topic": "JVM & Bytecode",
+        "timestamp": "03:13:03",
+        "note": "Crucial for understanding how Java runs; Deep."
+      },
+      {
+        "topic": "Stack & Heap",
+        "timestamp": "03:35:41",
+        "note": "Essential memory model understanding; Deep."
+      },
+      {
+        "topic": "Interfaces & Lambdas",
+        "timestamp": "08:07:22",
+        "note": "Contract design and functional programming; Deep."
+      },
+      {
+        "topic": "Collections & Maps",
+        "timestamp": "11:27:30",
+        "note": "Core data structures in backend code; Deep."
+      },
+      {
+        "topic": "Streams Pipeline",
+        "timestamp": "12:14:09",
+        "note": "Modern functional data processing; Deep."
+      },
+      {
+        "topic": "JDBC Connection",
+        "timestamp": "23:33:39",
+        "note": "Essential for DB persistence; Deep."
+      },
+      {
+        "topic": "ORM / Hibernate",
+        "timestamp": "30:29:58",
+        "note": "Essential for modern data access; Deep."
+      },
+      {
+        "topic": "REST API",
+        "timestamp": "33:49:37",
+        "note": "Core for modern backends; Deep."
+      },
+      {
+        "topic": "Microservices",
+        "timestamp": "46:28:34",
+        "note": "Core architectural knowledge; Basics."
+      }
     ]
   },
   "chapters": [
     {
       "id": "ch-1",
-      "category": "1. Core Java",
+      "category": "1. Java Basics",
       "title": "Introduction to Java",
-      "description": "Overview of language popularity/enterprise use",
+      "description": "Overview of Java and enterprise ecosystem",
       "importance": "⭐ High",
-      "timestampSeconds": 7,
-      "durationSeconds": 297,
+      "timestampSeconds": 0,
+      "durationSeconds": 304,
       "completed": false
     },
     {
       "id": "ch-2",
-      "category": "1. Core Java",
-      "title": "Development Tools",
-      "description": "Choosing IDEs vs. Text Editors",
+      "category": "1. Java Basics",
+      "title": "JDK setup",
+      "description": "Setting up development environment and tools",
       "importance": "🟡 Medium",
       "timestampSeconds": 304,
-      "durationSeconds": 11302,
+      "durationSeconds": 497,
       "completed": false
     },
     {
       "id": "ch-3",
-      "category": "1. Core Java",
-      "title": "JDK & JVM",
-      "description": "Theory of compilation and virtual machine",
+      "category": "1. Java Basics",
+      "title": "First Java program",
+      "description": "Writing, compiling, and running your first code",
       "importance": "⭐ High",
-      "timestampSeconds": 11606,
-      "durationSeconds": 3031,
+      "timestampSeconds": 801,
+      "durationSeconds": 674,
       "completed": false
     },
     {
       "id": "ch-4",
-      "category": "1. Core Java",
-      "title": "2D Arrays",
-      "description": "Theory and implementation of multi-dim arrays",
-      "importance": "🟡 Medium",
-      "timestampSeconds": 14637,
-      "durationSeconds": 30904,
+      "category": "1. Java Basics",
+      "title": "How Java works",
+      "description": "Source code to bytecode compilation and JVM execution",
+      "importance": "⭐ High",
+      "timestampSeconds": 1475,
+      "durationSeconds": 719,
       "completed": false
     },
     {
       "id": "ch-5",
-      "category": "1. Core Java",
+      "category": "1. Java Basics",
+      "title": "Variables",
+      "description": "Declaring and using variables in memory",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 2194,
+      "durationSeconds": 697,
+      "completed": false
+    },
+    {
+      "id": "ch-6",
+      "category": "1. Java Basics",
+      "title": "Data types",
+      "description": "Primitive types (byte, short, int, long, float, double, char, boolean)",
+      "importance": "⭐ High",
+      "timestampSeconds": 2891,
+      "durationSeconds": 737,
+      "completed": false
+    },
+    {
+      "id": "ch-7",
+      "category": "1. Java Basics",
+      "title": "Literals",
+      "description": "Binary, hex, and numeric literal formats in Java",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 3628,
+      "durationSeconds": 261,
+      "completed": false
+    },
+    {
+      "id": "ch-8",
+      "category": "1. Java Basics",
+      "title": "Type conversion",
+      "description": "Implicit widening and explicit narrowing / type casting",
+      "importance": "⭐ High",
+      "timestampSeconds": 3889,
+      "durationSeconds": 751,
+      "completed": false
+    },
+    {
+      "id": "ch-9",
+      "category": "1. Java Basics",
+      "title": "Assignment operators",
+      "description": "Arithmetic, shorthand, increment and decrement operators",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 4640,
+      "durationSeconds": 612,
+      "completed": false
+    },
+    {
+      "id": "ch-10",
+      "category": "1. Java Basics",
+      "title": "Relational operators",
+      "description": "Comparison operators (==, !=, <, >, <=, >=)",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 5252,
+      "durationSeconds": 483,
+      "completed": false
+    },
+    {
+      "id": "ch-11",
+      "category": "1. Java Basics",
+      "title": "Logical operators",
+      "description": "Short-circuit AND (&&), OR (||), and NOT (!)",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 5735,
+      "durationSeconds": 672,
+      "completed": false
+    },
+    {
+      "id": "ch-12",
+      "category": "2. Conditions and Loops",
+      "title": "if-else",
+      "description": "Control flow branching with if and else",
+      "importance": "⭐ High",
+      "timestampSeconds": 6407,
+      "durationSeconds": 778,
+      "completed": false
+    },
+    {
+      "id": "ch-13",
+      "category": "2. Conditions and Loops",
+      "title": "if-else-if",
+      "description": "Multi-branch decision logic",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 7185,
+      "durationSeconds": 333,
+      "completed": false
+    },
+    {
+      "id": "ch-14",
+      "category": "2. Conditions and Loops",
+      "title": "Ternary operator",
+      "description": "Compact conditional expressions (? :)",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 7518,
+      "durationSeconds": 273,
+      "completed": false
+    },
+    {
+      "id": "ch-15",
+      "category": "2. Conditions and Loops",
+      "title": "switch statement",
+      "description": "Multi-way branch selection with switch-case",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 7791,
+      "durationSeconds": 479,
+      "completed": false
+    },
+    {
+      "id": "ch-16",
+      "category": "2. Conditions and Loops",
+      "title": "Why loops are needed",
+      "description": "The need for repetitive execution in algorithms",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 8270,
+      "durationSeconds": 202,
+      "completed": false
+    },
+    {
+      "id": "ch-17",
+      "category": "2. Conditions and Loops",
+      "title": "while loop",
+      "description": "Entry-controlled loop execution",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 8472,
+      "durationSeconds": 743,
+      "completed": false
+    },
+    {
+      "id": "ch-18",
+      "category": "2. Conditions and Loops",
+      "title": "do-while loop",
+      "description": "Exit-controlled loop ensuring at least one run",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 9215,
+      "durationSeconds": 193,
+      "completed": false
+    },
+    {
+      "id": "ch-19",
+      "category": "2. Conditions and Loops",
+      "title": "for loop",
+      "description": "Counted loop initialization, condition, and step",
+      "importance": "⭐ High",
+      "timestampSeconds": 9408,
+      "durationSeconds": 798,
+      "completed": false
+    },
+    {
+      "id": "ch-20",
+      "category": "2. Conditions and Loops",
+      "title": "Which loop to use",
+      "description": "Guidelines for selecting the optimal loop construct",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 10206,
+      "durationSeconds": 102,
+      "completed": false
+    },
+    {
+      "id": "ch-21",
+      "category": "3. Classes, Objects and Methods",
+      "title": "Class and Object — theory",
+      "description": "Blueprints, instances, state, and behavior",
+      "importance": "⭐ High",
+      "timestampSeconds": 10308,
+      "durationSeconds": 342,
+      "completed": false
+    },
+    {
+      "id": "ch-22",
+      "category": "3. Classes, Objects and Methods",
+      "title": "Class and Object — practical",
+      "description": "Instantiating objects and calling methods in code",
+      "importance": "⭐ High",
+      "timestampSeconds": 10650,
+      "durationSeconds": 933,
+      "completed": false
+    },
+    {
+      "id": "ch-23",
+      "category": "3. Classes, Objects and Methods",
+      "title": "JDK vs JRE vs JVM",
+      "description": "Development kit vs runtime environment vs virtual machine",
+      "importance": "⭐ High",
+      "timestampSeconds": 11583,
+      "durationSeconds": 319,
+      "completed": false
+    },
+    {
+      "id": "ch-24",
+      "category": "3. Classes, Objects and Methods",
+      "title": "Methods",
+      "description": "Defining method signatures, parameters, and return types",
+      "importance": "⭐ High",
+      "timestampSeconds": 11902,
+      "durationSeconds": 682,
+      "completed": false
+    },
+    {
+      "id": "ch-25",
+      "category": "3. Classes, Objects and Methods",
+      "title": "Method overloading",
+      "description": "Compile-time polymorphism with overloaded signatures",
+      "importance": "⭐ High",
+      "timestampSeconds": 12584,
+      "durationSeconds": 357,
+      "completed": false
+    },
+    {
+      "id": "ch-26",
+      "category": "3. Classes, Objects and Methods",
+      "title": "Stack and Heap",
+      "description": "Stack frames, references, heap memory, and garbage collection",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 12941,
+      "durationSeconds": 751,
+      "completed": false
+    },
+    {
+      "id": "ch-27",
+      "category": "4. Arrays",
+      "title": "Why arrays are needed",
+      "description": "Storing contiguous collections of homogeneous data",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 13692,
+      "durationSeconds": 229,
+      "completed": false
+    },
+    {
+      "id": "ch-28",
+      "category": "4. Arrays",
+      "title": "Creating arrays",
+      "description": "Array declaration, allocation, and index access",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 13921,
+      "durationSeconds": 447,
+      "completed": false
+    },
+    {
+      "id": "ch-29",
+      "category": "4. Arrays",
+      "title": "Multidimensional arrays",
+      "description": "Matrix and 2D array representation in memory",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 14368,
+      "durationSeconds": 782,
+      "completed": false
+    },
+    {
+      "id": "ch-30",
+      "category": "4. Arrays",
+      "title": "Jagged and 3D arrays",
+      "description": "Arrays with irregular sub-array lengths",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 15150,
+      "durationSeconds": 338,
+      "completed": false
+    },
+    {
+      "id": "ch-31",
+      "category": "4. Arrays",
+      "title": "Drawbacks of arrays",
+      "description": "Fixed sizing, insertion costs, and why Collections are used",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 15488,
+      "durationSeconds": 166,
+      "completed": false
+    },
+    {
+      "id": "ch-32",
+      "category": "4. Arrays",
+      "title": "Array of objects",
+      "description": "Storing and managing object references in array slots",
+      "importance": "⭐ High",
+      "timestampSeconds": 15654,
+      "durationSeconds": 528,
+      "completed": false
+    },
+    {
+      "id": "ch-33",
+      "category": "4. Arrays",
+      "title": "Enhanced for loop",
+      "description": "Clean iteration over arrays and collections (for-each)",
+      "importance": "⭐ High",
+      "timestampSeconds": 16182,
+      "durationSeconds": 325,
+      "completed": false
+    },
+    {
+      "id": "ch-34",
+      "category": "5. Strings",
+      "title": "What is String",
+      "description": "String object representation and character sequences",
+      "importance": "⭐ High",
+      "timestampSeconds": 16507,
+      "durationSeconds": 437,
+      "completed": false
+    },
+    {
+      "id": "ch-35",
+      "category": "5. Strings",
+      "title": "Mutable vs immutable String",
+      "description": "String Constant Pool (SCP) and immutability benefits",
+      "importance": "⭐ High",
+      "timestampSeconds": 16944,
+      "durationSeconds": 379,
+      "completed": false
+    },
+    {
+      "id": "ch-36",
+      "category": "5. Strings",
+      "title": "StringBuffer and StringBuilder",
+      "description": "Thread-safe vs high-performance mutable string manipulation",
+      "importance": "⭐ High",
+      "timestampSeconds": 17323,
+      "durationSeconds": 340,
+      "completed": false
+    },
+    {
+      "id": "ch-37",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "static variable",
+      "description": "Class-level shared state across all instances",
+      "importance": "⭐ High",
+      "timestampSeconds": 17663,
+      "durationSeconds": 423,
+      "completed": false
+    },
+    {
+      "id": "ch-38",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "static block",
+      "description": "Class loading and static initialization timing",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 18086,
+      "durationSeconds": 437,
+      "completed": false
+    },
+    {
+      "id": "ch-39",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "static method",
+      "description": "Utility methods and invoking without an object",
+      "importance": "⭐ High",
+      "timestampSeconds": 18523,
+      "durationSeconds": 282,
+      "completed": false
+    },
+    {
+      "id": "ch-40",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "Encapsulation",
+      "description": "Hiding internal data and restricting direct field access",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 18805,
+      "durationSeconds": 699,
+      "completed": false
+    },
+    {
+      "id": "ch-41",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "Getters and setters",
+      "description": "Controlled property read and write accessors",
+      "importance": "⭐ High",
+      "timestampSeconds": 19504,
+      "durationSeconds": 171,
+      "completed": false
+    },
+    {
+      "id": "ch-42",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "this keyword",
+      "description": "Current instance reference and resolving shadowing",
+      "importance": "⭐ High",
+      "timestampSeconds": 19675,
+      "durationSeconds": 581,
+      "completed": false
+    },
+    {
+      "id": "ch-43",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "Constructor",
+      "description": "Object creation, initialization, and lifecycle",
+      "importance": "⭐ High",
+      "timestampSeconds": 20256,
+      "durationSeconds": 419,
+      "completed": false
+    },
+    {
+      "id": "ch-44",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "Default vs parameterized constructor",
+      "description": "Zero-arg vs parameterized constructor overloading",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 20675,
+      "durationSeconds": 301,
+      "completed": false
+    },
+    {
+      "id": "ch-45",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "this() and super()",
+      "description": "Constructor chaining and parent constructor invocation",
+      "importance": "⭐ High",
+      "timestampSeconds": 20976,
+      "durationSeconds": 726,
+      "completed": false
+    },
+    {
+      "id": "ch-46",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "Java naming conventions",
+      "description": "CamelCase, PascalCase, and enterprise styling standards",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 21702,
+      "durationSeconds": 266,
+      "completed": false
+    },
+    {
+      "id": "ch-47",
+      "category": "6. Static, Encapsulation & Constructors",
+      "title": "Anonymous object",
+      "description": "One-time use object creation without a named reference",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 21968,
+      "durationSeconds": 283,
+      "completed": false
+    },
+    {
+      "id": "ch-48",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Why inheritance is needed",
+      "description": "Code reusability and establishing IS-A relationships",
+      "importance": "⭐ High",
+      "timestampSeconds": 22251,
+      "durationSeconds": 375,
+      "completed": false
+    },
+    {
+      "id": "ch-49",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "What is inheritance",
+      "description": "Subclasses extending superclasses via extends",
+      "importance": "⭐ High",
+      "timestampSeconds": 22626,
+      "durationSeconds": 524,
+      "completed": false
+    },
+    {
+      "id": "ch-50",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Single and multilevel inheritance",
+      "description": "Linear class hierarchy chains",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 23150,
+      "durationSeconds": 231,
+      "completed": false
+    },
+    {
+      "id": "ch-51",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Multiple inheritance",
+      "description": "Why Java disallows multiple class inheritance (Diamond problem)",
+      "importance": "⭐ High",
+      "timestampSeconds": 23381,
+      "durationSeconds": 395,
+      "completed": false
+    },
+    {
+      "id": "ch-52",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Method overriding",
+      "description": "Runtime polymorphism by redefining parent methods",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 23776,
+      "durationSeconds": 469,
+      "completed": false
+    },
+    {
+      "id": "ch-53",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Packages",
+      "description": "Modularizing code and preventing namespace collision",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 24245,
+      "durationSeconds": 735,
+      "completed": false
+    },
+    {
+      "id": "ch-54",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Access modifiers",
+      "description": "private, default, protected, and public visibility rules",
+      "importance": "⭐ High",
+      "timestampSeconds": 24980,
+      "durationSeconds": 502,
+      "completed": false
+    },
+    {
+      "id": "ch-55",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Polymorphism",
+      "description": "Compile-time vs Runtime polymorphism concepts",
+      "importance": "⭐ High",
+      "timestampSeconds": 25482,
+      "durationSeconds": 229,
+      "completed": false
+    },
+    {
+      "id": "ch-56",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "Dynamic method dispatch",
+      "description": "Parent reference pointing to child object at runtime",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 25711,
+      "durationSeconds": 478,
+      "completed": false
+    },
+    {
+      "id": "ch-57",
+      "category": "7. Inheritance & Polymorphism",
+      "title": "final keyword",
+      "description": "final variables, final methods, and final classes",
+      "importance": "⭐ High",
+      "timestampSeconds": 26189,
+      "durationSeconds": 374,
+      "completed": false
+    },
+    {
+      "id": "ch-58",
+      "category": "8. Object Class & Type Casting",
+      "title": "Object class (equals, toString, hashCode)",
+      "description": "Root class of Java hierarchy and overriding core methods",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 26563,
+      "durationSeconds": 718,
+      "completed": false
+    },
+    {
+      "id": "ch-59",
+      "category": "8. Object Class & Type Casting",
+      "title": "Upcasting and downcasting",
+      "description": "Widening and narrowing reference type casting",
+      "importance": "⭐ High",
+      "timestampSeconds": 27281,
+      "durationSeconds": 396,
+      "completed": false
+    },
+    {
+      "id": "ch-60",
+      "category": "8. Object Class & Type Casting",
+      "title": "abstract keyword",
+      "description": "Abstract classes, abstract methods, and enforcing contracts",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 27677,
+      "durationSeconds": 729,
+      "completed": false
+    },
+    {
+      "id": "ch-61",
+      "category": "9. Inner Classes & Interfaces",
+      "title": "Inner class",
+      "description": "Member, static nested, and local inner classes",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 28406,
+      "durationSeconds": 337,
+      "completed": false
+    },
+    {
+      "id": "ch-62",
+      "category": "9. Inner Classes & Interfaces",
+      "title": "Anonymous inner class",
+      "description": "Inline class declaration and implementation for one-off tasks",
+      "importance": "⭐ High",
+      "timestampSeconds": 28743,
+      "durationSeconds": 308,
+      "completed": false
+    },
+    {
+      "id": "ch-63",
+      "category": "9. Inner Classes & Interfaces",
+      "title": "Abstract + anonymous inner class",
+      "description": "Instantiating abstract concepts on the fly",
+      "importance": "⭐ High",
+      "timestampSeconds": 29051,
+      "durationSeconds": 191,
+      "completed": false
+    },
+    {
+      "id": "ch-64",
+      "category": "9. Inner Classes & Interfaces",
+      "title": "Interface",
+      "description": "Declaring contracts, default methods, and static methods",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 29242,
+      "durationSeconds": 476,
+      "completed": false
+    },
+    {
+      "id": "ch-65",
+      "category": "9. Inner Classes & Interfaces",
+      "title": "More on interfaces",
+      "description": "Multiple interface implementation and loose coupling",
+      "importance": "⭐ High",
+      "timestampSeconds": 29718,
+      "durationSeconds": 202,
+      "completed": false
+    },
+    {
+      "id": "ch-66",
+      "category": "9. Inner Classes & Interfaces",
+      "title": "Why interfaces are needed",
+      "description": "Design patterns and repository layers in Spring Data",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 29920,
+      "durationSeconds": 511,
+      "completed": false
+    },
+    {
+      "id": "ch-67",
+      "category": "10. Enum & Annotations",
+      "title": "Enum",
+      "description": "Defining named constants and type-safe enumerations",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 30431,
+      "durationSeconds": 413,
+      "completed": false
+    },
+    {
+      "id": "ch-68",
+      "category": "10. Enum & Annotations",
+      "title": "Enum with if/switch",
+      "description": "Pattern matching and branching with enum values",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 30844,
+      "durationSeconds": 235,
+      "completed": false
+    },
+    {
+      "id": "ch-69",
+      "category": "10. Enum & Annotations",
+      "title": "Enum class",
+      "description": "Enums with constructors, fields, and custom methods",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 31079,
+      "durationSeconds": 466,
+      "completed": false
+    },
+    {
+      "id": "ch-70",
+      "category": "10. Enum & Annotations",
+      "title": "Annotation",
+      "description": "Metadata, built-in annotations, and framework foundation",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 31545,
+      "durationSeconds": 449,
+      "completed": false
+    },
+    {
+      "id": "ch-71",
+      "category": "11. Functional Interfaces & Lambda",
+      "title": "Functional interface",
+      "description": "SAM (Single Abstract Method) and @FunctionalInterface",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 31994,
+      "durationSeconds": 209,
+      "completed": false
+    },
+    {
+      "id": "ch-72",
+      "category": "11. Functional Interfaces & Lambda",
+      "title": "Lambda expression",
+      "description": "Writing concise arrow functions: (args) -> body",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 32203,
+      "durationSeconds": 368,
+      "completed": false
+    },
+    {
+      "id": "ch-73",
+      "category": "11. Functional Interfaces & Lambda",
+      "title": "Lambda with return",
+      "description": "Returning values and concise functional syntax",
+      "importance": "⭐ High",
+      "timestampSeconds": 32571,
+      "durationSeconds": 197,
+      "completed": false
+    },
+    {
+      "id": "ch-74",
+      "category": "11. Functional Interfaces & Lambda",
+      "title": "Types of interfaces",
+      "description": "Normal, Functional, and Marker interfaces",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 32768,
+      "durationSeconds": 273,
+      "completed": false
+    },
+    {
+      "id": "ch-75",
+      "category": "12. Exception Handling",
+      "title": "What is an exception",
+      "description": "Runtime errors vs compile errors and robustness",
+      "importance": "⭐ High",
+      "timestampSeconds": 33041,
+      "durationSeconds": 316,
+      "completed": false
+    },
+    {
+      "id": "ch-76",
+      "category": "12. Exception Handling",
+      "title": "try-catch",
+      "description": "Catching exceptions and graceful degradation",
+      "importance": "⭐ High",
+      "timestampSeconds": 33357,
+      "durationSeconds": 361,
+      "completed": false
+    },
+    {
+      "id": "ch-77",
+      "category": "12. Exception Handling",
+      "title": "Multiple catch",
+      "description": "Handling diverse exceptions in specific order",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 33718,
+      "durationSeconds": 616,
+      "completed": false
+    },
+    {
+      "id": "ch-78",
+      "category": "12. Exception Handling",
+      "title": "Exception hierarchy",
+      "description": "Throwable, Error, Exception, Checked vs Unchecked",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 34334,
+      "durationSeconds": 256,
+      "completed": false
+    },
+    {
+      "id": "ch-79",
+      "category": "12. Exception Handling",
+      "title": "throw",
+      "description": "Explicitly throwing exceptions in application logic",
+      "importance": "⭐ High",
+      "timestampSeconds": 34590,
+      "durationSeconds": 335,
+      "completed": false
+    },
+    {
+      "id": "ch-80",
+      "category": "12. Exception Handling",
+      "title": "Custom exception",
+      "description": "Defining business exceptions extending Exception / RuntimeException",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 34925,
+      "durationSeconds": 210,
+      "completed": false
+    },
+    {
+      "id": "ch-81",
+      "category": "12. Exception Handling",
+      "title": "throws / ducking exception",
+      "description": "Delegating exception handling to caller methods",
+      "importance": "⭐ High",
+      "timestampSeconds": 35135,
+      "durationSeconds": 594,
+      "completed": false
+    },
+    {
+      "id": "ch-82",
+      "category": "13. User Input",
+      "title": "User input (BufferedReader & Scanner)",
+      "description": "Reading user inputs from console via Scanner and BufferedReader",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 35729,
+      "durationSeconds": 708,
+      "completed": false
+    },
+    {
+      "id": "ch-83",
+      "category": "12. Exception Handling",
+      "title": "Try-with-resources",
+      "description": "Automatic resource management and AutoCloseable",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 36437,
+      "durationSeconds": 488,
+      "completed": false
+    },
+    {
+      "id": "ch-84",
+      "category": "14. Multithreading",
+      "title": "Threads",
+      "description": "Processes vs threads and concurrency benefits",
+      "importance": "⭐ High",
+      "timestampSeconds": 36925,
+      "durationSeconds": 312,
+      "completed": false
+    },
+    {
+      "id": "ch-85",
+      "category": "14. Multithreading",
+      "title": "Multiple threads",
+      "description": "Spawning and running concurrent thread paths",
+      "importance": "⭐ High",
+      "timestampSeconds": 37237,
+      "durationSeconds": 681,
+      "completed": false
+    },
+    {
+      "id": "ch-86",
+      "category": "14. Multithreading",
+      "title": "Thread priority and sleep",
+      "description": "Thread scheduling, sleep(), and cooperative multitasking",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 37918,
+      "durationSeconds": 442,
+      "completed": false
+    },
+    {
+      "id": "ch-87",
+      "category": "14. Multithreading",
+      "title": "Runnable vs Thread",
+      "description": "Implementing Runnable vs extending Thread",
+      "importance": "⭐ High",
+      "timestampSeconds": 38360,
+      "durationSeconds": 505,
+      "completed": false
+    },
+    {
+      "id": "ch-88",
+      "category": "14. Multithreading",
+      "title": "Race condition",
+      "description": "Synchronized blocks and preventing data corruption",
+      "importance": "⭐ High",
+      "timestampSeconds": 38865,
+      "durationSeconds": 750,
+      "completed": false
+    },
+    {
+      "id": "ch-89",
+      "category": "14. Multithreading",
+      "title": "Thread states",
+      "description": "New, Runnable, Running, Blocked, Waiting, Terminated",
+      "importance": "🟡 Medium",
+      "timestampSeconds": 39615,
+      "durationSeconds": 210,
+      "completed": false
+    },
+    {
+      "id": "ch-90",
+      "category": "15. Collections Framework",
+      "title": "Collection API",
+      "description": "Collection hierarchy, Iterable, List, Set, Queue, Map",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 39825,
+      "durationSeconds": 285,
+      "completed": false
+    },
+    {
+      "id": "ch-91",
+      "category": "15. Collections Framework",
+      "title": "ArrayList",
+      "description": "Dynamic arrays, indexing, and list operations",
+      "importance": "⭐ High",
+      "timestampSeconds": 40110,
+      "durationSeconds": 713,
+      "completed": false
+    },
+    {
+      "id": "ch-92",
+      "category": "15. Collections Framework",
+      "title": "Set",
+      "description": "HashSet, TreeSet, uniqueness, and hashing logic",
+      "importance": "⭐ High",
+      "timestampSeconds": 40823,
+      "durationSeconds": 427,
+      "completed": false
+    },
+    {
+      "id": "ch-93",
+      "category": "15. Collections Framework",
+      "title": "Map",
+      "description": "HashMap, key-value hashing, entrySet, and collision handling",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 41250,
+      "durationSeconds": 602,
+      "completed": false
+    },
+    {
+      "id": "ch-94",
+      "category": "15. Collections Framework",
+      "title": "Comparator vs Comparable",
+      "description": "Natural ordering (Comparable) vs custom sorting strategies (Comparator)",
+      "importance": "⭐ High",
+      "timestampSeconds": 41852,
+      "durationSeconds": 943,
+      "completed": false
+    },
+    {
+      "id": "ch-95",
+      "category": "16. Stream API",
+      "title": "Why Stream API",
+      "description": "Declarative data pipelines vs imperative loops",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 42795,
+      "durationSeconds": 417,
+      "completed": false
+    },
+    {
+      "id": "ch-96",
+      "category": "16. Stream API",
+      "title": "forEach()",
+      "description": "Internal iteration over collections with Consumer lambdas",
+      "importance": "⭐ High",
+      "timestampSeconds": 43212,
+      "durationSeconds": 289,
+      "completed": false
+    },
+    {
+      "id": "ch-97",
+      "category": "16. Stream API",
+      "title": "Stream API",
+      "description": "Creating streams and functional pipeline lifecycle",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 43501,
+      "durationSeconds": 548,
+      "completed": false
+    },
+    {
+      "id": "ch-98",
+      "category": "16. Stream API",
+      "title": "map, filter, reduce, sorted",
+      "description": "Intermediate transformations and terminal aggregations",
+      "importance": "⭐ High 🎯",
+      "timestampSeconds": 44049,
+      "durationSeconds": 1492,
+      "completed": false
+    },
+    {
+      "id": "ch-99",
+      "category": "Core Java: Modern Features",
       "title": "'var' Keyword",
-      "description": "Introduction to type inference",
+      "description": "Introduction to local variable type inference",
       "importance": "🟡 Medium",
       "timestampSeconds": 45541,
       "durationSeconds": 2047,
       "completed": false
     },
     {
-      "id": "ch-6",
-      "category": "2. JUnit",
+      "id": "ch-100",
+      "category": "JUnit",
       "title": "JUnit 5",
-      "description": "Intro to testing framework",
+      "description": "Intro to testing framework and test annotations",
       "importance": "⭐ High",
       "timestampSeconds": 47588,
       "durationSeconds": 112,
       "completed": false
     },
     {
-      "id": "ch-7",
-      "category": "2. JUnit",
+      "id": "ch-101",
+      "category": "JUnit",
       "title": "Unit Testing",
-      "description": "Testing vs. standard QA/Testing",
+      "description": "Writing automated unit test suites vs manual QA",
       "importance": "🔗 Prerequisite",
       "timestampSeconds": 47700,
       "durationSeconds": 10605,
       "completed": false
     },
     {
-      "id": "ch-8",
-      "category": "3. DSA",
-      "title": "ADT",
-      "description": "Abstract Data Type overview",
+      "id": "ch-102",
+      "category": "DSA",
+      "title": "ADT (Abstract Data Type)",
+      "description": "Abstract Data Type overview and data organization",
       "importance": "🔗 Prerequisite",
       "timestampSeconds": 58305,
       "durationSeconds": 2148,
       "completed": false
     },
     {
-      "id": "ch-9",
-      "category": "3. DSA",
+      "id": "ch-103",
+      "category": "DSA",
       "title": "Big O Notation",
-      "description": "Complexity analysis (linear/binary search)",
+      "description": "Time and space complexity analysis (linear & binary search)",
       "importance": "⭐ High",
       "timestampSeconds": 60453,
       "durationSeconds": 6800,
       "completed": false
     },
     {
-      "id": "ch-10",
-      "category": "3. DSA",
+      "id": "ch-104",
+      "category": "DSA",
       "title": "Merge Sort",
-      "description": "Sorting algorithm logic and implementation",
+      "description": "Divide-and-conquer sorting algorithm implementation",
       "importance": "🟡 Medium",
       "timestampSeconds": 67253,
       "durationSeconds": 1369,
       "completed": false
     },
     {
-      "id": "ch-11",
-      "category": "3. DSA",
+      "id": "ch-105",
+      "category": "DSA",
       "title": "Linked List",
-      "description": "Node-based list implementation",
+      "description": "Node-based list implementation and pointer manipulation",
       "importance": "🟡 Medium",
       "timestampSeconds": 68622,
       "durationSeconds": 12967,
       "completed": false
     },
     {
-      "id": "ch-12",
-      "category": "4. Git",
-      "title": "Git Clone/Logs",
-      "description": "Repo management and version history",
+      "id": "ch-106",
+      "category": "Git",
+      "title": "Git Clone & Logs",
+      "description": "Repository management, commits, and version history",
       "importance": "⭐ High",
       "timestampSeconds": 81589,
       "durationSeconds": 2611,
       "completed": false
     },
     {
-      "id": "ch-13",
-      "category": "5. JDBC",
+      "id": "ch-107",
+      "category": "JDBC",
       "title": "JDBC Theory",
       "description": "Seven steps for database connectivity",
       "importance": "⭐ High",
@@ -181,80 +1235,80 @@
       "completed": false
     },
     {
-      "id": "ch-14",
-      "category": "5. JDBC",
+      "id": "ch-108",
+      "category": "JDBC",
       "title": "MySQL Connection",
-      "description": "Coding the driver and connection logic",
+      "description": "Coding the driver, connection URL, and statement execution",
       "importance": "⭐ High 🎯",
       "timestampSeconds": 84819,
       "durationSeconds": 3565,
       "completed": false
     },
     {
-      "id": "ch-15",
-      "category": "6. Servlets & JSP",
-      "title": "Web Basics",
-      "description": "Intro to Servlet/JSP in modern context",
+      "id": "ch-109",
+      "category": "Servlets & JSP",
+      "title": "Web Basics (Servlets & JSP)",
+      "description": "Intro to Servlet/JSP request-response in modern context",
       "importance": "🎯 Spring Boot",
       "timestampSeconds": 88384,
       "durationSeconds": 21414,
       "completed": false
     },
     {
-      "id": "ch-16",
-      "category": "7. Hibernate",
-      "title": "ORM Theory",
-      "description": "Mapping Java objects to databases",
+      "id": "ch-110",
+      "category": "Hibernate",
+      "title": "ORM Theory (Hibernate)",
+      "description": "Object-Relational Mapping, entity lifecycle, and database persistence",
       "importance": "⭐ High 🎯",
       "timestampSeconds": 109798,
       "durationSeconds": 11979,
       "completed": false
     },
     {
-      "id": "ch-17",
-      "category": "8. REST API / Web Services",
+      "id": "ch-111",
+      "category": "REST API / Web Services",
       "title": "REST Fundamentals",
-      "description": "Web service design principles",
+      "description": "HTTP methods, status codes, and web service design principles",
       "importance": "⭐ High 🎯",
       "timestampSeconds": 121777,
       "durationSeconds": 9280,
       "completed": false
     },
     {
-      "id": "ch-18",
-      "category": "9. Spring Framework",
-      "title": "Framework Basics",
-      "description": "Dependency Injection and Spring architecture",
+      "id": "ch-112",
+      "category": "Spring Framework",
+      "title": "Spring Framework Basics",
+      "description": "Dependency Injection, Inversion of Control, and Spring architecture",
       "importance": "⭐ High 🎯",
       "timestampSeconds": 131057,
       "durationSeconds": 15416,
       "completed": false
     },
     {
-      "id": "ch-19",
-      "category": "14. Spring Boot",
+      "id": "ch-113",
+      "category": "Spring Boot",
       "title": "Spring Boot API",
-      "description": "Building REST APIs with auto-configuration",
+      "description": "Building REST APIs with auto-configuration and Spring Initializr",
       "importance": "⭐ High 🎯",
       "timestampSeconds": 146473,
       "durationSeconds": 11074,
       "completed": false
     },
     {
-      "id": "ch-20",
-      "category": "17. MongoDB + Spring Boot",
-      "title": "NoSQL Integration",
-      "description": "Connecting Spring Boot to MongoDB Cloud",
+      "id": "ch-114",
+      "category": "MongoDB + Spring Boot",
+      "title": "NoSQL Integration (MongoDB + Spring Boot)",
+      "description": "Connecting Spring Boot to MongoDB Atlas Cloud database",
       "importance": "⭐ High 🎯",
       "timestampSeconds": 157547,
       "durationSeconds": 9767,
       "completed": false
     },
     {
-      "id": "ch-21",
-      "category": "20. Microservices",
+      "id": "ch-115",
+      "category": "Microservices",
       "title": "Microservices Architecture",
-      "description": "Monolith vs Microservices transition",
+      "description": "Monolith to Microservices transition, service registry, and APIs",
       "importance": "⭐ High 🎯",
       "timestampSeconds": 167314,
       "durationSeconds": 5486,

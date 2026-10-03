@@ -30,17 +30,25 @@ function loadInitialCourseData(): StorageState {
   const existingDefault = stored.courses[defaultCourse.id];
   let mergedDefault = defaultCourse;
   if (existingDefault) {
-    const completedMap = new Map(
+    const completedTitleMap = new Map(
       (existingDefault.chapters || []).map((ch) => [
-        ch.id,
+        ch.title.toLowerCase().trim(),
         { completed: ch.completed, completedAt: ch.completedAt, notes: ch.notes },
       ])
     );
+    const completedTimeMap = new Map(
+      (existingDefault.chapters || []).map((ch) => [
+        ch.timestampSeconds,
+        { completed: ch.completed, completedAt: ch.completedAt, notes: ch.notes },
+      ])
+    );
+
     mergedDefault = {
       ...defaultCourse,
       lastWatchedSeconds: existingDefault.lastWatchedSeconds || defaultCourse.lastWatchedSeconds,
       chapters: defaultCourse.chapters.map((ch) => {
-        const prev = completedMap.get(ch.id);
+        const prev =
+          completedTitleMap.get(ch.title.toLowerCase().trim()) || completedTimeMap.get(ch.timestampSeconds);
         return prev
           ? { ...ch, completed: prev.completed, completedAt: prev.completedAt, notes: prev.notes || ch.notes }
           : ch;
@@ -240,9 +248,15 @@ export const useCourseStore = create<CourseStoreState>((set, get) => {
       const { courses, activeCourseId, courseOrder } = get();
       if (courseId === defaultCourse.id) {
         const existing = courses[courseId];
-        const completedMap = new Map(
+        const completedTitleMap = new Map(
           (existing?.chapters || []).map((ch) => [
-            ch.id,
+            ch.title.toLowerCase().trim(),
+            { completed: ch.completed, completedAt: ch.completedAt, notes: ch.notes },
+          ])
+        );
+        const completedTimeMap = new Map(
+          (existing?.chapters || []).map((ch) => [
+            ch.timestampSeconds,
             { completed: ch.completed, completedAt: ch.completedAt, notes: ch.notes },
           ])
         );
@@ -250,7 +264,8 @@ export const useCourseStore = create<CourseStoreState>((set, get) => {
           ...defaultCourse,
           lastWatchedSeconds: existing?.lastWatchedSeconds || 0,
           chapters: defaultCourse.chapters.map((ch) => {
-            const prev = completedMap.get(ch.id);
+            const prev =
+              completedTitleMap.get(ch.title.toLowerCase().trim()) || completedTimeMap.get(ch.timestampSeconds);
             return prev
               ? { ...ch, completed: prev.completed, completedAt: prev.completedAt, notes: prev.notes || ch.notes }
               : ch;
