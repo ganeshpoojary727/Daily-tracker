@@ -1,5 +1,5 @@
 /**
- * Client service to execute Java code in a sandboxed runtime via Piston REST API.
+ * Client service to execute Java code in a sandboxed runtime via OpenJDK execution API.
  */
 
 export interface JavaExecutionResult {
@@ -11,7 +11,7 @@ export interface JavaExecutionResult {
   error?: string;
 }
 
-const PISTON_ENDPOINT = 'https://emkc.org/api/v2/piston/execute';
+const WANDBOX_ENDPOINT = 'https://wandbox.org/api/compile.json';
 
 export async function executeJavaCode(
   code: string,
@@ -29,24 +29,20 @@ export async function executeJavaCode(
     };
   }
 
+  // Normalize "public class <Name>" to "class <Name>" so standard Java compiles seamlessly in sandboxed runner
+  const normalizedCode = code.replace(/\bpublic\s+class\s+([A-Za-z0-9_$]+)/g, 'class $1');
+
   try {
-    const response = await fetch(PISTON_ENDPOINT, {
+    const response = await fetch(WANDBOX_ENDPOINT, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        language: 'java',
-        version: '15.0.2',
-        files: [
-          {
-            name: 'Main.java',
-            content: code,
-          },
-        ],
+        compiler: 'openjdk-jdk-21+35',
+        code: normalizedCode,
         stdin: stdin || '',
-        run_timeout: 5000,
-        compile_timeout: 10000,
+        save: false,
       }),
     });
 
@@ -65,27 +61,29 @@ export async function executeJavaCode(
 
     const data = await response.json();
 
-    // Check if compile phase had an error
-    if (data.compile && data.compile.code !== 0) {
+    // Check for compilation errors
+    const compilerError = data.compiler_error || data.compiler_message || '';
+    const rawStatus = data.status;
+    const exitCode = typeof rawStatus === 'string' ? parseInt(rawStatus, 10) : (rawStatus || 0);
+
+    if (compilerError && exitCode !== 0) {
       return {
         success: false,
-        stdout: data.compile.stdout || '',
-        stderr: data.compile.stderr || data.compile.output || 'Compilation failed.',
-        exitCode: data.compile.code,
+        stdout: data.compiler_output || '',
+        stderr: compilerError,
+        exitCode,
         executionTimeMs: elapsed,
       };
     }
 
-    // Check run phase
-    const run = data.run || {};
-    const stdout = run.stdout || '';
-    const stderr = run.stderr || '';
-    const exitCode = typeof run.code === 'number' ? run.code : 0;
+    // Program execution output
+    const stdout = data.program_output || data.program_message || '';
+    const stderr = data.program_error || '';
     const isSuccess = exitCode === 0 && !stderr;
 
     return {
       success: isSuccess,
-      stdout: stdout || run.output || '',
+      stdout,
       stderr,
       exitCode,
       executionTimeMs: elapsed,

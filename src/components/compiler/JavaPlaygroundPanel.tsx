@@ -153,7 +153,7 @@ export const JavaPlaygroundPanel: React.FC<JavaPlaygroundPanelProps> = ({ isOpen
             <div className="flex items-center gap-2">
               <h3 className="font-display text-sm font-bold text-text-primary-dark">Java Compiler</h3>
               <span className="rounded bg-surface-border-dark/60 px-1.5 py-0.2 font-mono text-[9px] text-emerald-400 border border-emerald-500/30">
-                OpenJDK 15
+                OpenJDK 21
               </span>
             </div>
             <p className="text-[10px] text-text-muted-dark">Run and test code while watching</p>
