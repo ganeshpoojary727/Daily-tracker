@@ -1,0 +1,30 @@
+{
+  "id": "telusko-java-spring-microservices",
+  "title": "Complete Java, Spring, and Microservices course",
+  "instructor": "Telusko",
+  "platform": "youtube-video",
+  "url": "https://youtu.be/4XTsAAHW_Tc",
+  "videoId": "4XTsAAHW_Tc",
+  "thumbnail": "https://i.ytimg.com/vi/4XTsAAHW_Tc/hqdefault.jpg",
+  "lastWatchedSeconds": 0,
+  "totalDurationSeconds": 68400,
+  "linkedCategoryId": "study",
+  "notes": "Comprehensive full course covering Java Fundamentals, OOP, Collections, Multithreading, Spring Framework, Spring Boot 3, and Microservices architecture.",
+  "createdAt": "2026-10-03T10:00:00.000Z",
+  "updatedAt": "2026-10-03T10:00:00.000Z",
+  "chapters": [
+    { "id": "ch-1", "title": "Introduction to Java & Environment Setup", "timestampSeconds": 0, "durationSeconds": 900, "completed": false },
+    { "id": "ch-2", "title": "Variables, Data Types & Operators", "timestampSeconds": 900, "durationSeconds": 1800, "completed": false },
+    { "id": "ch-3", "title": "Conditional Statements & Loops", "timestampSeconds": 2700, "durationSeconds": 2100, "completed": false },
+    { "id": "ch-4", "title": "Object-Oriented Programming (Classes & Objects)", "timestampSeconds": 4800, "durationSeconds": 3600, "completed": false },
+    { "id": "ch-5", "title": "Inheritance, Polymorphism & Encapsulation", "timestampSeconds": 8400, "durationSeconds": 3600, "completed": false },
+    { "id": "ch-6", "title": "Interfaces & Abstract Classes", "timestampSeconds": 12000, "durationSeconds": 2700, "completed": false },
+    { "id": "ch-7", "title": "Exception Handling", "timestampSeconds": 14700, "durationSeconds": 2400, "completed": false },
+    { "id": "ch-8", "title": "Java Collections Framework (List, Set, Map)", "timestampSeconds": 17100, "durationSeconds": 4200, "completed": false },
+    { "id": "ch-9", "title": "Streams API & Lambda Expressions", "timestampSeconds": 21300, "durationSeconds": 3600, "completed": false },
+    { "id": "ch-10", "title": "Spring Framework Core & Dependency Injection", "timestampSeconds": 24900, "durationSeconds": 4800, "completed": false },
+    { "id": "ch-11", "title": "Spring Boot Setup & REST Controllers", "timestampSeconds": 29700, "durationSeconds": 5400, "completed": false },
+    { "id": "ch-12", "title": "Spring Data JPA & Database Integration", "timestampSeconds": 35100, "durationSeconds": 5400, "completed": false },
+    { "id": "ch-13", "title": "Building Microservices & Service Registry (Eureka)", "timestampSeconds": 40500, "durationSeconds": 7200, "completed": false }
+  ]
+}
