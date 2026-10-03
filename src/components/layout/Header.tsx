@@ -1,5 +1,15 @@
 import React from 'react';
-import { Flame, Sun, Moon, Monitor, Menu, Github } from 'lucide-react';
+import {
+  Flame,
+  Sun,
+  Moon,
+  Monitor,
+  Menu,
+  Github,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Code2,
+} from 'lucide-react';
 import { useStreak } from '../../hooks/useStreak';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { CloudSyncPill } from './CloudSyncPill';
@@ -7,9 +17,20 @@ import { CloudSyncPill } from './CloudSyncPill';
 interface HeaderProps {
   onToggleMobileSidebar: () => void;
   onOpenSettings?: () => void;
+  isSidebarCollapsed?: boolean;
+  onToggleCollapseSidebar?: () => void;
+  isJavaPlaygroundOpen?: boolean;
+  onToggleJavaPlayground?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar, onOpenSettings }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onToggleMobileSidebar,
+  onOpenSettings,
+  isSidebarCollapsed = false,
+  onToggleCollapseSidebar,
+  isJavaPlaygroundOpen = false,
+  onToggleJavaPlayground,
+}) => {
   const { currentStreak } = useStreak();
   const { theme } = useSettingsStore((state) => state.settings);
   const setTheme = useSettingsStore((state) => state.setTheme);
@@ -22,8 +43,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar, onOpenSet
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-surface-border-dark bg-bg-dark/90 px-4 backdrop-blur-md md:px-6">
-      {/* Brand & Mobile Toggle */}
-      <div className="flex items-center gap-3">
+      {/* Brand & Sidebar Toggles */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Mobile Sidebar Hamburger */}
         <button
           onClick={onToggleMobileSidebar}
           className="rounded-lg p-2 text-text-muted-dark hover:bg-surface-dark md:hidden"
@@ -31,6 +53,21 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar, onOpenSet
         >
           <Menu className="w-5 h-5" />
         </button>
+
+        {/* Desktop Collapse / Expand Sidebar Button */}
+        {onToggleCollapseSidebar && (
+          <button
+            onClick={onToggleCollapseSidebar}
+            className="hidden md:flex h-9 w-9 items-center justify-center rounded-lg border border-surface-border-dark bg-surface-dark text-text-muted-dark hover:text-text-primary-dark hover:bg-surface-hover-dark transition-colors"
+            title={isSidebarCollapsed ? 'Expand sidebar (Ctrl + B)' : 'Collapse sidebar (Ctrl + B)'}
+          >
+            {isSidebarCollapsed ? (
+              <PanelLeftOpen className="w-4 h-4 text-amber-400" />
+            ) : (
+              <PanelLeftClose className="w-4 h-4" />
+            )}
+          </button>
+        )}
 
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-streak/15 text-streak border border-streak/30">
@@ -47,8 +84,24 @@ export const Header: React.FC<HeaderProps> = ({ onToggleMobileSidebar, onOpenSet
         </div>
       </div>
 
-      {/* Streak Badge & Theme Controls */}
-      <div className="flex items-center gap-2.5 sm:gap-3">
+      {/* Right Controls: Java Compiler, Cloud Sync, Streak, Theme */}
+      <div className="flex items-center gap-2 sm:gap-3">
+        {/* Java Playground & Compiler Toggle */}
+        {onToggleJavaPlayground && (
+          <button
+            onClick={onToggleJavaPlayground}
+            title="Toggle Java Compiler & Playground (Ctrl + \)"
+            className={`flex items-center gap-1.5 h-9 px-3 rounded-lg border transition-all text-xs font-semibold ${
+              isJavaPlaygroundOpen
+                ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-sm shadow-emerald-500/10'
+                : 'border-surface-border-dark bg-surface-dark text-text-muted-dark hover:text-text-primary-dark hover:border-surface-border-dark'
+            }`}
+          >
+            <Code2 className="w-4 h-4 text-emerald-400" />
+            <span className="hidden sm:inline">Java Compiler</span>
+          </button>
+        )}
+
         {/* Cloud Sync Status Indicator */}
         <CloudSyncPill onOpenSettings={onOpenSettings} />
 
