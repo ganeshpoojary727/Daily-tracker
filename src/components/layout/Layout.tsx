@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { JavaPlaygroundPanel } from '../compiler/JavaPlaygroundPanel';
 import { ViewTab } from '../../types';
 
 interface LayoutProps {
@@ -66,7 +67,7 @@ export const Layout: React.FC<LayoutProps> = ({ activeTab, onSelectTab, children
       />
 
       {/* Main Content Body */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="relative flex flex-1 overflow-hidden">
         {/* Collapsible Sidebar */}
         <Sidebar
           activeTab={activeTab}
@@ -77,10 +78,20 @@ export const Layout: React.FC<LayoutProps> = ({ activeTab, onSelectTab, children
           onToggleCollapse={toggleSidebarCollapse}
         />
 
-        {/* View Surface */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 transition-all duration-300">
+        {/* View Surface - smoothly resizes when Java Playground opens */}
+        <main
+          className={`flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 transition-all duration-300 ${
+            isJavaPlaygroundOpen ? 'lg:mr-[520px]' : ''
+          }`}
+        >
           <div className="mx-auto max-w-7xl">{children}</div>
         </main>
+
+        {/* Right-Side Java Compiler & Playground Panel */}
+        <JavaPlaygroundPanel
+          isOpen={isJavaPlaygroundOpen}
+          onClose={() => setIsJavaPlaygroundOpen(false)}
+        />
       </div>
     </div>
   );
