@@ -6,7 +6,6 @@ import {
   Globe,
   Sparkles,
   Link,
-  BookOpen,
   ListOrdered,
   Loader2,
   CheckCircle2,

@@ -1,6 +1,7 @@
 import { useTaskStore } from '../store/useTaskStore';
 import { useGoalStore } from '../store/useGoalStore';
 import { usePracticeStore } from '../store/usePracticeStore';
+import { useCourseStore } from '../store/useCourseStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 import { useSyncStatusStore } from '../store/useSyncStatusStore';
 import {
@@ -33,6 +34,11 @@ export function getCurrentSnapshot(): GistSyncData {
       activeSheetId: usePracticeStore.getState().activeSheetId,
       statesBySheet: usePracticeStore.getState().statesBySheet,
     },
+    courses: {
+      courses: useCourseStore.getState().courses,
+      activeCourseId: useCourseStore.getState().activeCourseId,
+      courseOrder: useCourseStore.getState().courseOrder,
+    },
     updatedAt: new Date().toISOString(),
   };
 }
@@ -51,6 +57,16 @@ export function applySnapshotToStores(data: GistSyncData): void {
   }
   if (data.practice) {
     usePracticeStore.getState().setPracticeState(data.practice as any);
+  }
+  if (data.courses) {
+    const c = data.courses as any;
+    if (c.courses && c.courseOrder) {
+      useCourseStore.setState({
+        courses: c.courses,
+        activeCourseId: c.activeCourseId || Object.keys(c.courses)[0] || '',
+        courseOrder: c.courseOrder,
+      });
+    }
   }
 }
 
@@ -257,6 +273,17 @@ export function initGithubSyncEngine(): () => void {
     }
   });
 
+  const unsubCourses = useCourseStore.subscribe((state, prevState) => {
+    if (
+      state.courses !== prevState.courses ||
+      state.courseOrder !== prevState.courseOrder
+    ) {
+      if (useSyncStatusStore.getState().isInitialPullDone) {
+        scheduleAutoSave();
+      }
+    }
+  });
+
   const handleOnline = () => {
     const { githubSync: sync } = useSettingsStore.getState().settings;
     if (sync?.enabled && sync?.token && sync?.gistId) {
@@ -271,6 +298,7 @@ export function initGithubSyncEngine(): () => void {
     unsubTasks();
     unsubGoals();
     unsubPractice();
+    unsubCourses();
     window.removeEventListener('online', handleOnline);
   };
 }

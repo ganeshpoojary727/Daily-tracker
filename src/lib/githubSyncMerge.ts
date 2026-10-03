@@ -1,4 +1,4 @@
-import { Category, DayEntry, DayTaskEntry, Goal, PracticeState } from '../types';
+import { Category, Course, CourseChapter, DayEntry, DayTaskEntry, Goal, PracticeState } from '../types';
 import { GistSyncData } from './githubSync';
 
 /**
@@ -353,6 +353,7 @@ export function mergeSyncData(local: GistSyncData, remote: GistSyncData): GistSy
   };
 
   const mergedSettings = mergeSettings(local?.settings, remote?.settings);
+  const mergedCourses = mergeCourses(local?.courses, remote?.courses);
 
   return {
     tasks: {
@@ -361,7 +362,86 @@ export function mergeSyncData(local: GistSyncData, remote: GistSyncData): GistSy
     },
     goals: mergedGoals,
     practice: mergedPractice,
+    courses: mergedCourses,
     settings: mergedSettings,
     updatedAt: new Date().toISOString(),
   };
 }
+
+function extractCourseParts(coursesData: unknown): {
+  courses: Record<string, Course>;
+  activeCourseId: string;
+  courseOrder: string[];
+} {
+  if (!coursesData || typeof coursesData !== 'object') {
+    return { courses: {}, activeCourseId: '', courseOrder: [] };
+  }
+  const c = coursesData as any;
+  return {
+    courses: c.courses && typeof c.courses === 'object' ? c.courses : {},
+    activeCourseId: c.activeCourseId || '',
+    courseOrder: Array.isArray(c.courseOrder) ? c.courseOrder : [],
+  };
+}
+
+export function mergeCourses(
+  localCoursesData: unknown,
+  remoteCoursesData: unknown
+): { courses: Record<string, Course>; activeCourseId: string; courseOrder: string[] } {
+  const local = extractCourseParts(localCoursesData);
+  const remote = extractCourseParts(remoteCoursesData);
+
+  const mergedCourses: Record<string, Course> = {};
+  const allIds = new Set([...Object.keys(local.courses), ...Object.keys(remote.courses)]);
+
+  for (const id of allIds) {
+    const l = local.courses[id];
+    const r = remote.courses[id];
+    if (l && !r) {
+      mergedCourses[id] = { ...l };
+    } else if (!l && r) {
+      mergedCourses[id] = { ...r };
+    } else if (l && r) {
+      // Pick higher watch progress
+      const lastWatchedSeconds = Math.max(l.lastWatchedSeconds || 0, r.lastWatchedSeconds || 0);
+
+      // Union chapters
+      const chapterMap = new Map<string, CourseChapter>();
+      (r.chapters || []).forEach((ch) => chapterMap.set(ch.id, { ...ch }));
+      (l.chapters || []).forEach((ch) => {
+        const existing = chapterMap.get(ch.id);
+        if (existing) {
+          chapterMap.set(ch.id, {
+            ...existing,
+            ...ch,
+            completed: Boolean(existing.completed || ch.completed),
+            notes: ch.notes || existing.notes,
+          });
+        } else {
+          chapterMap.set(ch.id, { ...ch });
+        }
+      });
+
+      mergedCourses[id] = {
+        ...r,
+        ...l,
+        lastWatchedSeconds,
+        chapters: Array.from(chapterMap.values()),
+        notes: l.notes || r.notes,
+      };
+    }
+  }
+
+  const courseOrder = Array.from(new Set([...local.courseOrder, ...remote.courseOrder])).filter(
+    (id) => mergedCourses[id]
+  );
+  const activeCourseId =
+    local.activeCourseId && mergedCourses[local.activeCourseId]
+      ? local.activeCourseId
+      : remote.activeCourseId && mergedCourses[remote.activeCourseId]
+      ? remote.activeCourseId
+      : courseOrder[0] || '';
+
+  return { courses: mergedCourses, activeCourseId, courseOrder };
+}
+

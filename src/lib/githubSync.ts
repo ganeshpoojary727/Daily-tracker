@@ -4,6 +4,7 @@ export interface GistSyncData {
   goals: unknown;
   settings: unknown;
   practice: unknown;
+  courses?: unknown;
   updatedAt: string;
 }
 

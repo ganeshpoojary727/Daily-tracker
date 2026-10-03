@@ -5,6 +5,7 @@ import { DailyChecklist } from './components/checklist/DailyChecklist';
 import { StreakHeatmap } from './components/calendar/StreakHeatmap';
 import { GoalList } from './components/goals/GoalList';
 import { PracticeQueueRunner } from './components/practice/PracticeQueueRunner';
+import { CourseHubView } from './components/courses/CourseHubView';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -62,6 +63,7 @@ export function App() {
       )}
       {activeTab === 'goals' && <GoalList />}
       {activeTab === 'practice' && <PracticeQueueRunner />}
+      {activeTab === 'courses' && <CourseHubView />}
       {activeTab === 'dashboard' && <DashboardView />}
       {activeTab === 'settings' && <SettingsPanel />}
     </Layout>

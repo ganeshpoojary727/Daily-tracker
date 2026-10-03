@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, RotateCcw, FastForward, ExternalLink, Clock, CheckCircle2 } from 'lucide-react';
+import { Play, RotateCcw, FastForward, ExternalLink, Clock } from 'lucide-react';
 import { Course } from '../../types';
 import { useCourseStore } from '../../store/useCourseStore';
 import { formatSecondsToTimestamp } from '../../lib/courseUtils';

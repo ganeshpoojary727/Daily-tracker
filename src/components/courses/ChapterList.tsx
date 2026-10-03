@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import {
   Check,
   Play,
-  Clock,
   Search,
   FileText,
   Upload,
   BookOpen,
-  CheckCircle2,
   ListOrdered,
 } from 'lucide-react';
 import { Course, CourseChapter } from '../../types';

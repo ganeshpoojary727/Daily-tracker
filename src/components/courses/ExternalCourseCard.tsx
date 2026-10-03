@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, BookOpen, Clock, Award, CheckCircle } from 'lucide-react';
+import { ExternalLink, Award } from 'lucide-react';
 import { Course } from '../../types';
 import { formatSecondsToTimestamp } from '../../lib/courseUtils';
 

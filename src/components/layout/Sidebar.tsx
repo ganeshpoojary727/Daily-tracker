@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckSquare, Calendar, Target, Code, BarChart3, Settings, X } from 'lucide-react';
+import { CheckSquare, Calendar, Target, Code, BarChart3, Settings, GraduationCap, X } from 'lucide-react';
 import { ViewTab } from '../../types';
 
 interface SidebarProps {
@@ -21,6 +21,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'calendar', label: 'Streak Calendar', icon: Calendar },
     { id: 'goals', label: 'Goals & Timers', icon: Target },
     { id: 'practice', label: 'DSA Queue Runner', icon: Code },
+    { id: 'courses', label: 'Course Hub', icon: GraduationCap },
     { id: 'dashboard', label: 'Stats & Charts', icon: BarChart3 },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
