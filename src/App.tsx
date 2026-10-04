@@ -6,6 +6,7 @@ import { StreakHeatmap } from './components/calendar/StreakHeatmap';
 import { GoalList } from './components/goals/GoalList';
 import { PracticeQueueRunner } from './components/practice/PracticeQueueRunner';
 import { CourseHubView } from './components/courses/CourseHubView';
+import { WorkoutHubView } from './components/workout/WorkoutHubView';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { SettingsPanel } from './components/settings/SettingsPanel';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -62,6 +63,7 @@ export function App() {
         <StreakHeatmap onSelectDateToLog={handleSelectDateFromCalendar} />
       )}
       {activeTab === 'goals' && <GoalList />}
+      {activeTab === 'workout' && <WorkoutHubView />}
       {activeTab === 'practice' && <PracticeQueueRunner />}
       {activeTab === 'courses' && <CourseHubView />}
       {activeTab === 'dashboard' && <DashboardView />}

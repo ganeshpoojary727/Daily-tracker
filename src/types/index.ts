@@ -121,7 +121,9 @@ export interface MultiSheetState {
   statesBySheet: Record<string, PracticeState>; // independent progress per sheet
 }
 
-export type ViewTab = 'checklist' | 'calendar' | 'goals' | 'practice' | 'courses' | 'dashboard' | 'settings';
+export type ViewTab = 'checklist' | 'calendar' | 'goals' | 'practice' | 'courses' | 'workout' | 'dashboard' | 'settings';
+
+export * from './workout';
 
 export type CoursePlatform = 'youtube-video' | 'youtube-playlist' | 'udemy' | 'coursera' | 'custom';
 
