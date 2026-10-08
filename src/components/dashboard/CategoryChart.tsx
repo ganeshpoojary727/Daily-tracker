@@ -61,16 +61,29 @@ export const CategoryChart: React.FC = () => {
 
       <div className="h-64 w-full pt-2">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+          <BarChart
+            layout="vertical"
+            data={chartData}
+            margin={{ top: 5, right: 25, left: 10, bottom: 5 }}
+          >
             <XAxis
+              type="number"
+              stroke="#8B949E"
+              fontSize={11}
+              tickLine={false}
+              axisLine={false}
+              allowDecimals={false}
+            />
+            <YAxis
+              type="category"
               dataKey="name"
               stroke="#8B949E"
               fontSize={11}
               tickLine={false}
               axisLine={false}
-              interval={0}
+              width={130}
+              tickFormatter={(val: string) => (val.length > 17 ? `${val.slice(0, 16)}…` : val)}
             />
-            <YAxis stroke="#8B949E" fontSize={11} tickLine={false} axisLine={false} />
             <Tooltip
               contentStyle={{
                 backgroundColor: '#161B22',
@@ -81,8 +94,9 @@ export const CategoryChart: React.FC = () => {
                 fontFamily: 'JetBrains Mono',
               }}
               formatter={(val: number) => [`${val} units`, 'Completed']}
+              labelFormatter={(label) => String(label)}
             />
-            <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="count" radius={[0, 6, 6, 0]} barSize={16}>
               {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}

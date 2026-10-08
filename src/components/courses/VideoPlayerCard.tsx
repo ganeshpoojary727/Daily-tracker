@@ -22,11 +22,20 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<any>(null);
   const intervalRef = useRef<any>(null);
-  const hasAutoResumedRef = useRef(false);
+  const initialResumeTargetRef = useRef(Math.floor(course.lastWatchedSeconds || 0));
+  const hasVerifiedSeekRef = useRef(Math.floor(course.lastWatchedSeconds || 0) <= 5);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentSeconds, setCurrentSeconds] = useState(course.lastWatchedSeconds || 0);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
+
+  // Sync state when course changes
+  useEffect(() => {
+    const saved = Math.floor(course.lastWatchedSeconds || 0);
+    setCurrentSeconds(saved);
+    initialResumeTargetRef.current = saved;
+    hasVerifiedSeekRef.current = saved <= 5;
+  }, [course.id]);
 
   // Load YouTube IFrame API script once if not already present
   useEffect(() => {
@@ -38,14 +47,16 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
     }
   }, []);
 
-  // Guarantee save to storage whenever tab is closed or reloaded
+  // Guarantee save to storage whenever browser window is closed or reloaded
   useEffect(() => {
     const handleBeforeUnload = () => {
       if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
-        const time = playerRef.current.getCurrentTime();
-        if (typeof time === 'number' && !isNaN(time) && time > 0) {
-          updatePlaybackProgress(course.id, time);
-        }
+        try {
+          const time = playerRef.current.getCurrentTime();
+          if (typeof time === 'number' && !isNaN(time) && time > 0 && hasVerifiedSeekRef.current) {
+            updatePlaybackProgress(course.id, time);
+          }
+        } catch {}
       }
     };
 
@@ -56,7 +67,7 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
   // Initialize YT.Player when script is ready and container is mounted
   useEffect(() => {
     let isMounted = true;
-    hasAutoResumedRef.current = false;
+    const targetResume = initialResumeTargetRef.current;
 
     const initPlayer = () => {
       if (!isMounted || !containerRef.current || !window.YT || !window.YT.Player || !course.videoId) return;
@@ -65,12 +76,8 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
       if (playerRef.current) {
         try {
           playerRef.current.destroy();
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
-
-      const initialStartSeconds = Math.floor(course.lastWatchedSeconds || 0);
 
       playerRef.current = new window.YT.Player(containerRef.current, {
         videoId: course.videoId,
@@ -78,7 +85,7 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
           autoplay: 0,
           controls: 1,
           rel: 0,
-          start: initialStartSeconds,
+          start: targetResume > 0 ? targetResume : 0,
           modestbranding: 1,
         },
         events: {
@@ -87,16 +94,15 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
             setIsPlayerReady(true);
             const dur = event.target.getDuration();
             if (dur && dur > 0) {
-              updatePlaybackProgress(course.id, course.lastWatchedSeconds, dur);
+              updatePlaybackProgress(course.id, targetResume, dur);
             }
 
-            // Guarantee seek to last saved timestamp on player ready
-            if (initialStartSeconds > 0) {
+            // Cue or seek to last saved timestamp on player ready
+            if (targetResume > 5) {
               try {
-                event.target.seekTo(initialStartSeconds, true);
-              } catch {
-                // ignore
-              }
+                event.target.seekTo(targetResume, true);
+                setCurrentSeconds(targetResume);
+              } catch {}
             }
           },
           onStateChange: (event: any) => {
@@ -105,22 +111,29 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
             if (event.data === 1) {
               setIsPlaying(true);
 
-              // If initial play started at 0:00 while user had previously watched progress, auto-resume!
-              if (!hasAutoResumedRef.current && initialStartSeconds > 5) {
+              // If playback started near 0 while user had previously saved progress, auto-resume!
+              if (!hasVerifiedSeekRef.current && targetResume > 5) {
                 const cur = event.target.getCurrentTime();
-                if (cur < 3) {
-                  event.target.seekTo(initialStartSeconds, true);
+                if (cur < targetResume - 5) {
+                  try {
+                    event.target.seekTo(targetResume, true);
+                    setCurrentSeconds(targetResume);
+                  } catch {}
+                } else {
+                  hasVerifiedSeekRef.current = true;
                 }
-                hasAutoResumedRef.current = true;
               }
             } else {
               setIsPlaying(false);
-              // Save progress immediately on pause or stop
-              if (typeof event.target.getCurrentTime === 'function') {
-                const cur = event.target.getCurrentTime();
-                if (typeof cur === 'number' && !isNaN(cur)) {
-                  updatePlaybackProgress(course.id, cur);
-                }
+              // Save progress on pause or stop ONLY if verified seek has already occurred
+              if (hasVerifiedSeekRef.current && typeof event.target.getCurrentTime === 'function') {
+                try {
+                  const cur = event.target.getCurrentTime();
+                  if (typeof cur === 'number' && !isNaN(cur) && cur > 0) {
+                    setCurrentSeconds(cur);
+                    updatePlaybackProgress(course.id, cur);
+                  }
+                } catch {}
               }
             }
           },
@@ -140,15 +153,22 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
 
     return () => {
       isMounted = false;
+      // Guarantee save on component unmount (tab switch, navigating away)
+      if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
+        try {
+          const cur = playerRef.current.getCurrentTime();
+          if (typeof cur === 'number' && !isNaN(cur) && cur > 0 && hasVerifiedSeekRef.current) {
+            updatePlaybackProgress(course.id, cur);
+          }
+        } catch {}
+      }
       if (playerRef.current) {
         try {
           playerRef.current.destroy();
-        } catch {
-          // ignore
-        }
+        } catch {}
       }
     };
-  }, [course.videoId]);
+  }, [course.id, course.videoId]);
 
   // Periodic watch progress tracker + Auto-complete chapters as user watches past them
   useEffect(() => {
@@ -158,6 +178,20 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
           const time = playerRef.current.getCurrentTime();
           const dur = playerRef.current.getDuration();
           if (typeof time === 'number' && !isNaN(time)) {
+            const target = initialResumeTargetRef.current;
+
+            // If player is still transitioning/seeking to resume point, avoid overwriting with near-0 values
+            if (!hasVerifiedSeekRef.current && target > 5) {
+              if (time < target - 5) {
+                try {
+                  playerRef.current.seekTo(target, true);
+                } catch {}
+                return;
+              } else {
+                hasVerifiedSeekRef.current = true;
+              }
+            }
+
             setCurrentSeconds(time);
             updatePlaybackProgress(course.id, time, dur);
 
@@ -193,6 +227,7 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
       if (customEvent.detail && customEvent.detail.courseId === course.id) {
         const targetSeconds = customEvent.detail.seconds;
         if (playerRef.current && typeof playerRef.current.seekTo === 'function') {
+          hasVerifiedSeekRef.current = true;
           playerRef.current.seekTo(targetSeconds, true);
           playerRef.current.playVideo();
           setCurrentSeconds(targetSeconds);
@@ -206,9 +241,12 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
   }, [course.id, updatePlaybackProgress]);
 
   const handleResume = () => {
+    const target = Math.floor(course.lastWatchedSeconds || 0);
     if (playerRef.current && typeof playerRef.current.seekTo === 'function') {
-      playerRef.current.seekTo(course.lastWatchedSeconds, true);
+      hasVerifiedSeekRef.current = true;
+      playerRef.current.seekTo(target, true);
       playerRef.current.playVideo();
+      setCurrentSeconds(target);
     }
   };
 
@@ -216,6 +254,7 @@ export const VideoPlayerCard: React.FC<VideoPlayerCardProps> = ({ course }) => {
     if (playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
       const cur = playerRef.current.getCurrentTime();
       const target = Math.max(0, cur + secondsOffset);
+      hasVerifiedSeekRef.current = true;
       playerRef.current.seekTo(target, true);
       setCurrentSeconds(target);
       updatePlaybackProgress(course.id, target);

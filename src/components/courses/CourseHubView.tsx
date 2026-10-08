@@ -130,7 +130,7 @@ export const CourseHubView: React.FC = () => {
           {/* Full Width Video Player Card */}
           <div className="w-full">
             {activeCourse.platform === 'youtube-video' || activeCourse.platform === 'youtube-playlist' ? (
-              <VideoPlayerCard course={activeCourse} />
+              <VideoPlayerCard key={activeCourse.id} course={activeCourse} />
             ) : (
               <ExternalCourseCard course={activeCourse} />
             )}
@@ -163,7 +163,7 @@ export const CourseHubView: React.FC = () => {
 
           <div className="w-full">
             {activeCourse.platform === 'youtube-video' || activeCourse.platform === 'youtube-playlist' ? (
-              <VideoPlayerCard course={activeCourse} />
+              <VideoPlayerCard key={activeCourse.id} course={activeCourse} />
             ) : (
               <ExternalCourseCard course={activeCourse} />
             )}
@@ -179,7 +179,7 @@ export const CourseHubView: React.FC = () => {
           {/* Left Column: Player or External Banner */}
           <div className="lg:col-span-7 space-y-4">
             {activeCourse.platform === 'youtube-video' || activeCourse.platform === 'youtube-playlist' ? (
-              <VideoPlayerCard course={activeCourse} />
+              <VideoPlayerCard key={activeCourse.id} course={activeCourse} />
             ) : (
               <ExternalCourseCard course={activeCourse} />
             )}

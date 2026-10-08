@@ -2,6 +2,7 @@ import React from 'react';
 import { StatsOverview } from './StatsOverview';
 import { CategoryChart } from './CategoryChart';
 import { TrendChart } from './TrendChart';
+import { DomainFocusDonut } from './DomainFocusDonut';
 
 export const DashboardView: React.FC = () => {
   return (
@@ -11,18 +12,21 @@ export const DashboardView: React.FC = () => {
           Analytics & Performance Dashboard
         </h2>
         <p className="text-xs font-mono text-text-muted-dark">
-          High-level statistics, category distributions, and daily completion trends.
+          High-level statistics, domain focus distribution, category counts, and daily completion trends.
         </p>
       </div>
 
       {/* Headline Overview Cards */}
       <StatsOverview />
 
-      {/* Charts Grid */}
+      {/* Domain Balance and Category Distribution */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <DomainFocusDonut />
         <CategoryChart />
-        <TrendChart />
       </div>
+
+      {/* Trailing Trends Full Width */}
+      <TrendChart />
     </div>
   );
 };
